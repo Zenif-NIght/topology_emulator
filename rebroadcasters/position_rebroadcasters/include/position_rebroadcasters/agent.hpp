@@ -19,6 +19,7 @@
 
 /* ROS Headers */
 #include<ros/ros.h>
+#include<ros/callback_queue.h>
 
 #include<nav_msgs/Odometry.h>
 
@@ -36,7 +37,7 @@ public:
   /**
    * @Constructor
    **/
-  Agent(const std::string& agent_name, const std::string& odom_topic); 
+  Agent(const std::string& agent_name, const std::string& odom_topic, const uint32_t callbackQueueLegth = 5); 
   /**
    * @Deconstructor
    **/
@@ -50,12 +51,33 @@ public:
    **/
   void update();
   /**
-   * @
+   * @getPose
+   *
+   * @brief
+   * Returns the objects pose data.
+   **/
+  const mv_msgs::VehiclePose& getPose() noexcept;
+  /**
+   * @updateGetPose
+   *
+   * @brief
+   * Both updates this objects pose data and returns it for use.
+   **/
+  const mv_msgs::VehiclePose& updateGetPose();
+  /**
+   * @getName
+   *
+   * @brief
+   * Returns this objects name.
+   **/
+  const std::string& getName() noexcept;
 private:
   /* This agents unique identifier */
   std::string m_name;
   /* For initializing this class */
   ros::NodeHandle c_nh;
+  /* For holding callback that haven't been ran yet */
+  ros::CallbackQueue m_callback_queue;
   /* For updating Pose data */
   ros::Subscriber m_odom_sub;
   /* Holds the latest data from odom */
