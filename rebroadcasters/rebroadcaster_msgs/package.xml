@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>rebroadcasters_msgs</name>
+  <name>rebroadcaster_msgs</name>
   <version>0.0.0</version>
   <description>The rebroadcasters_msgs package</description>
   <maintainer email="james@todo.todo">james</maintainer>

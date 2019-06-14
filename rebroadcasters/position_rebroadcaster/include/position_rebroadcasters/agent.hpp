@@ -11,11 +11,12 @@
 #define AGENT_HPP
 
 /* Multi Vehicle Headers */
-//#include"mv_msgs/VehiclePose.h"
+#include"mv_msgs/VehiclePose.h"
 
 /* C++ Headers */
 #include<mutex>
 #include<string>
+#include<thread>
 
 /* ROS Headers */
 #include<ros/ros.h>
@@ -37,19 +38,14 @@ public:
   /**
    * @Constructor
    **/
-  Agent(const std::string& agent_name, const std::string& odom_topic, const uint32_t callbackQueueLegth = 5); 
+  Agent(const std::string& agent_name,
+        const std::string& odom_topic,
+        const uint32_t callback_queue_legth = 5,
+        const uint32_t spinRate = 50);
   /**
    * @Deconstructor
    **/
   ~Agent();
-  /**
-   * @update
-   *
-   * @brief
-   * Updates this objects pose if there is a callback to run
-   * in the ROS callback queue.
-   **/
-  void update();
   /**
    * @getPose
    *
@@ -58,19 +54,26 @@ public:
    **/
   const mv_msgs::VehiclePose& getPose() noexcept;
   /**
-   * @updateGetPose
-   *
-   * @brief
-   * Both updates this objects pose data and returns it for use.
-   **/
-  const mv_msgs::VehiclePose& updateGetPose();
-  /**
    * @getName
    *
    * @brief
    * Returns this objects name.
    **/
   const std::string& getName() noexcept;
+  /**
+   * @getName
+   *
+   * @brief
+   * Returns this objects name.
+   **/
+  const std::string& getFrameId() noexcept;
+  /**
+   * @getLock
+   *
+   * @brief
+   * Returns a reference to this objects mutex.
+   **/
+  std::mutex& getLock() noexcept;
 private:
   /* This agents unique identifier */
   std::string m_name;
@@ -84,6 +87,10 @@ private:
   mv_msgs::VehiclePose m_pose;
   /* Protects this object from race conditions */
   std::mutex m_pose_mux;
+  /* Keeps this object up to date */
+  std::thread m_thread;
+  /* Runs odomCallbacks as they come */
+  void threadFunction(const uint32_t spin_rate);
   /* Gets information from odom */
   void odomCallback(const nav_msgs::Odometry& msg_in);
 };

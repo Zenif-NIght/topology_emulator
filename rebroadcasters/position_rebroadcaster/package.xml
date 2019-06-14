@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>position_rebroadcaster</name>
+  <version>0.0.0</version>
+  <description>The position_rebroadcasters package</description>
+  <maintainer email="james@todo.todo">james</maintainer>
+  <license>TODO</license>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rebroadcaster_msgs</depend>
+  <depend>mv_msgs</depend>
+
+  <depend>roscpp</depend>
+  <depend>message_runtime</depend>
+  <depend>nav_msgs</depend>
+
+  <export></export>
+</package>
