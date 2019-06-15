@@ -1,0 +1,12 @@
+##
+# @File: Neighbors.srv
+#
+# @brief
+# Input: string of the robot_id (robot namespace) whose neighbors are being 
+# requested
+# Output: Neighbors message
+##
+
+string robot_id
+---
+my_msgs/Neighbors neighbors

@@ -8,6 +8,7 @@ project(network_topology_emulator)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   geometry_msgs
   nav_msgs
   roscpp
@@ -56,11 +57,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  Neighbors.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -107,7 +107,13 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES network_topology_emulator
-#  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs
+ CATKIN_DEPENDS 
+  geometry_msgs 
+  nav_msgs 
+  roscpp 
+  rospy 
+  std_msgs
+  # mv_msgs
 #  DEPENDS system_lib
 )
 

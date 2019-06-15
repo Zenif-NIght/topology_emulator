@@ -34,6 +34,7 @@ find_package(catkin REQUIRED
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
+    Neighbors.msg
     VehiclePose.msg
     VehiclePoses.msg
 )
