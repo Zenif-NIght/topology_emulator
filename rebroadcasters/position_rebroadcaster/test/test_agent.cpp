@@ -31,9 +31,16 @@ nav_msgs::Odometry makeOdom()
   return obj;
 }
 
-TEST(Constructor, full)
+TEST(Constructor, stack)
 {
   Agent("agentName", "odomTopic");
+}
+
+TEST(Constructor, heap)
+{
+  Agent* test = new Agent("AgentName", "odomTopic");
+
+  delete(test);
 }
 
 TEST(GetPose, full)
@@ -90,5 +97,5 @@ int main(int argc, char** argv)
   return RUN_ALL_TESTS();
 }
 
-/* test_complete_request.cpp */
+/* test_agent.cpp */
 

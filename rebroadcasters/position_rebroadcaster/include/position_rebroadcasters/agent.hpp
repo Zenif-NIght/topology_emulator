@@ -11,7 +11,7 @@
 #define AGENT_HPP
 
 /* Multi Vehicle Headers */
-#include"mv_msgs/VehiclePose.h"
+//#include"mv_msgs/VehiclePose.h"
 
 /* C++ Headers */
 #include<mutex>
@@ -61,10 +61,10 @@ public:
    **/
   const std::string& getName() noexcept;
   /**
-   * @getName
+   * @getFrameId
    *
    * @brief
-   * Returns this objects name.
+   * Returns this objects frame id.
    **/
   const std::string& getFrameId() noexcept;
   /**
@@ -89,9 +89,19 @@ private:
   std::mutex m_pose_mux;
   /* Keeps this object up to date */
   std::thread m_thread;
-  /* Runs odomCallbacks as they come */
+  /**
+   * @threadFunction
+   *
+   * @brief
+   * Runs odomCallbacks as they come.
+   **/
   void threadFunction(const uint32_t spin_rate);
-  /* Gets information from odom */
+  /**
+   * @odomCallback
+   *
+   * @brief
+   * Gets information from odom.
+   **/
   void odomCallback(const nav_msgs::Odometry& msg_in);
 };
 
