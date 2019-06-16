@@ -59,31 +59,15 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-add_executable(agent_test
-  test/test_agent.cpp
-  src/agent.cpp
-)
-
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+add_executable(agent_test test/test_agent.cpp src/agent.cpp)
 set_target_properties(agent_test PROPERTIES OUTPUT_NAME agent_test PREFIX "")
-
-## Add cmake target dependencies of the executable
-## same as for the library above
 add_dependencies(agent_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(agent_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
 
-## Specify libraries to link a library or executable target against
-target_link_libraries(agent_test 
-  ${GTEST_LIBRARIES}
-    #  gtest
-  #  gtest_main
-  ${catkin_LIBRARIES}
-)
+add_executable(agent_pool_test test/test_agent_pool.cpp src/agent_pool.cpp src/agent.cpp)
+set_target_properties(agent_pool_test PROPERTIES OUTPUT_NAME agent_pool_test PREFIX "")
+add_dependencies(agent_pool_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(agent_pool_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -100,7 +84,7 @@ target_link_libraries(agent_test
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS agent_test
+install(TARGETS agent_test agent_pool_test
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

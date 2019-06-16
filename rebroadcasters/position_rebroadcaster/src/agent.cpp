@@ -29,6 +29,8 @@ Agent::Agent(const std::string& agent_name,
  : m_name(agent_name),
    m_thread(&Agent::threadFunction, std::ref(*this), spin_rate)
 {
+  this->m_pose.robot_id = this->m_name;
+
   this->c_nh.setCallbackQueue(&this->m_callback_queue);
 
   this->m_odom_sub = c_nh.subscribe(odom_topic, callback_queue_legth, &Agent::odomCallback, this);

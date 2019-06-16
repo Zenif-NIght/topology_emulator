@@ -1,6 +1,6 @@
 <!-- test_agent.launch -->
 
 <launch>
-  <node name="test_agent" type="agent_test" pkg="position_rebroadcaster" output="screen" launch-prefix="valgrind" />
+  <node name="agent_test" type="agent_test" pkg="position_rebroadcaster" output="screen" launch-prefix="valgrind" />
 </launch>
 

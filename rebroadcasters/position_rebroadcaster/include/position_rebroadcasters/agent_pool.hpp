@@ -14,8 +14,8 @@
 #include"position_rebroadcasters/agent.hpp"
 
 /* Multi Vehicle Headers */
-// #include"mv_msgs/VehiclePose.h"
-// #include"mv_msgs/VehiclePoses.h"
+#include"mv_msgs/VehiclePose.h"
+#include"mv_msgs/VehiclePoses.h"
 
 /* ROS Headers */
 #include<ros/ros.h>
@@ -26,7 +26,7 @@
 #include<list>
 #include<memory>
 #include<regex>
-#include<vector>
+#include<functional>
 
 class AgentPool 
 {
@@ -63,7 +63,7 @@ public:
    * Returns all the pose data held by the pool at this time.
    * Note, doesn't fill out header.
    **/
-  const mv_msgs::VehiclePoses& getAllPoses() noexcept;
+  std::shared_ptr<mv_msgs::VehiclePoses> getAllPoses();
   /**
    * @getAgent
    *
@@ -79,12 +79,10 @@ private:
   const uint32_t m_agent_spin_rate; 
   /* Prevents race conditions */
   std::mutex m_mux;
-  /* Keeps this object up to date */
-  std::thread m_thread;
   /* When false the thread will exit */
   bool m_thread_run;
-  /* Checks to see if this is the odom topic */
-  const std::regex odom_regex;
+  /* Keeps this object up to date */
+  std::thread m_thread;
   /**
    * @updateThreadFunction
    *
@@ -99,7 +97,7 @@ private:
    * @brief
    * Returns a list of all the current Agents.
    **/
-  std::shared_ptr<std::list<std::string&>> currentAgents();
+  std::shared_ptr<std::list<std::reference_wrapper<const std::string>>> currentAgents();
   /**
    * @getNamespace
    *
@@ -116,7 +114,7 @@ private:
    * @return: If it finds it, it will remove that element and return true
    *          If is doesn't it returns false
    **/
-  bool checkNamespace(const std::string& the_namespace, std::list<std::string&>& agents_list);
+  bool checkNamespace(const std::string& the_namespace, std::list<std::reference_wrapper<const std::string>>& agents_list);
 };
 
 #endif

@@ -19,12 +19,12 @@
 
 TEST(Constructor, stack)
 {
-  AgentPool();
+  AgentPool(1);
 }
 
 TEST(Constructor, heap)
 {
-  AgentPool* test = new AgentPool();
+  AgentPool* test = new AgentPool(1);
 
   delete(test);
 }
@@ -53,22 +53,66 @@ TEST(getPose, shouldWork)
 
   ros::NodeHandle m_nh;
   ros::Publisher odom_pub = m_nh.advertise<nav_msgs::Odometry>("robot3/odom", 5);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
   nav_msgs::Odometry obj;
-  obj.child_frame_id = "testing";
+  obj.header.frame_id = "testing";
   odom_pub.publish(obj);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-  EXPECT_EQ("testing", test.getPose("robot3"));
+  EXPECT_EQ("testing", test.getPose("robot3").pose.header.frame_id);
 }
 
-TEST(getPose, shouldWork)
+TEST(getPose, shouldntWork)
 {
   AgentPool test(100, 5, 100);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   EXPECT_ANY_THROW(test.getPose("robot3"));
+}
+
+TEST(getAllPoses, full)
+{
+  AgentPool test(100, 5, 100);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  
+  EXPECT_EQ(1, test.getAllPoses()->vehicles.size());
+
+  ros::NodeHandle m_nh;
+  ros::Publisher odom_pub  = m_nh.advertise<nav_msgs::Odometry>("robot3/odom", 5);
+  ros::Publisher odom_pub2 = m_nh.advertise<nav_msgs::Odometry>("robot4/odom", 5);
+  ros::Publisher odom_pub3 = m_nh.advertise<nav_msgs::Odometry>("robot5/odom", 5);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+  nav_msgs::Odometry obj;
+
+  obj.header.frame_id = "testing";
+  odom_pub.publish(obj);
+
+  obj.header.frame_id = "testing";
+  odom_pub2.publish(obj);
+
+  obj.header.frame_id = "testing";
+  odom_pub3.publish(obj);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+  EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(3).pose.header.frame_id); 
+  EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(1).pose.header.frame_id);
+  EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(2).pose.header.frame_id);
+
+  odom_pub.shutdown();
+  odom_pub2.shutdown();
+  odom_pub3.shutdown();
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+  EXPECT_EQ(1, test.getAllPoses()->vehicles.size());
 }
 
 int main(int argc, char** argv)
