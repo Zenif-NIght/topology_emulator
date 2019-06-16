@@ -14,8 +14,8 @@
 #include"position_rebroadcasters/agent.hpp"
 
 /* Multi Vehicle Headers */
-#include"mv_msgs/VehiclePose.h"
-#include"mv_msgs/VehiclePoses.h"
+//#include"mv_msgs/VehiclePose.h"
+//#include"mv_msgs/VehiclePoses.h"
 
 /* ROS Headers */
 #include<ros/ros.h>
@@ -25,7 +25,6 @@
 #include<mutex>
 #include<list>
 #include<memory>
-#include<regex>
 #include<functional>
 
 class AgentPool 
@@ -42,7 +41,7 @@ public:
   /**
    * @Constructor
    **/
-  AgentPool(const uint32_t descovery_spin_rate = 1,
+  AgentPool(const uint32_t descovery_spin_rate,
             const uint32_t callback_queue_legths = 5,
             const uint32_t agents_spin_rate = 50);
   /**

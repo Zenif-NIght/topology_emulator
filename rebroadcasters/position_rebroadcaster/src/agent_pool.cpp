@@ -23,7 +23,6 @@
 #include<mutex>
 #include<list>
 #include<memory>
-#include<regex>
 #include<functional>
 
 AgentPool::AgentPool(const uint32_t descovery_spin_rate,
