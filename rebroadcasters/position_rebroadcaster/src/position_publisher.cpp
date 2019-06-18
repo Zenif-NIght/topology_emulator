@@ -71,7 +71,6 @@ void PositionPublisher::publishInThread(const uint32_t spin_rate)
 
     msg_out.header.stamp = ros::Time::now();
     msg_out.header.frame_id = this->getFrameId();
-    msg_out.vehicles.resize(raw_poses->vehicles.size());
 
     // Transform data
     try
@@ -83,14 +82,18 @@ void PositionPublisher::publishInThread(const uint32_t spin_rate)
         if(this->m_tfListener.waitForTransform(this->m_frameId,
                                                pose_ref.header.frame_id,
                                                pose_ref.header.stamp,
-                                               ros::Duration(0.1)))
+                                               ros::Duration(0.5)))
         {
+          msg_out.vehicles.resize(msg_out.vehicles.size() + 1);
+
+          msg_out.vehicles.back().pose.header = pose_ref.header;
+
           this->m_tfListener.transformPose(this->getFrameId(),
                                            pose_ref,
-                                           msg_out.vehicles.at(agent_it).pose);
+                                           msg_out.vehicles.back().pose);
+      
+          msg_out.vehicles.back().robot_id = raw_poses->vehicles.at(agent_it).robot_id;
         }
-
-        msg_out.vehicles.at(agent_it).robot_id = raw_poses->vehicles.at(agent_it).robot_id;
       }
     }
     catch(const tf::TransformException& e)

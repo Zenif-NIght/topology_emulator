@@ -7,6 +7,6 @@
         pkg="position_rebroadcaster"
         type="position_rebroadcaster_demo"
         output="screen"
-        respawn="true"
+        respawn="false"
         required="false" />
 </launch>

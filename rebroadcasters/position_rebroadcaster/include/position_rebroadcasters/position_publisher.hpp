@@ -22,6 +22,7 @@
 #include<string>
 #include<memory>
 #include<thread>
+#include<functional>
 
 class PositionPublisher 
 {
@@ -62,7 +63,7 @@ private:
   /* Used to transform frames */
   tf::TransformListener m_tfListener;
   /* Holds the position data */
-  std::reference_wrapper<AgentPool> m_agents;
+  const std::reference_wrapper<AgentPool> m_agents;
   /* ROS stuff */
   ros::NodeHandle c_nh;
   ros::Publisher m_pub;

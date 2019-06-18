@@ -34,14 +34,14 @@ int main(int argc, char** argv)
 
   ros::ServiceClient srv_client = m_nh.serviceClient<rebroadcaster_msgs::ConnectPositionServer>("position_rebroadcaster/connect");
   ros::ServiceClient end_client = m_nh.serviceClient<rebroadcaster_msgs::DisconnectRebroadcast>("position_rebroadcaster/disconnect");
-  ros::Subscriber    msg_sub    = m_nh.subscribe("to_full_demo", 5, callback);
+  ros::Subscriber    msg_sub    = m_nh.subscribe("to_full_demo", 1, callback);
 
   ROS_INFO("Opening a topic");
 
   // Open topic
   rebroadcaster_msgs::ConnectPositionServer srv_obj;
   srv_obj.request.topic = "to_full_demo";
-  srv_obj.request.frameId = "rosbot1";
+  srv_obj.request.frameId = "robot1/odom";
 
   if(!srv_client.call(srv_obj))
   {
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 
   ROS_INFO("Printing messages");
 
-  ros::Rate loop_rate(0.5);
+  ros::Rate loop_rate(0.2);
   ros::Time timer = ros::Time::now();
   
   // Print messages

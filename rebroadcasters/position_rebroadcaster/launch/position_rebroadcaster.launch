@@ -16,7 +16,7 @@
        doc="How long the outbound message queue is for position messages." />
   <arg name="publishing_spin_rate"
        default="30"
-       doc="The frequency in hertz that the outbound position messages will be published." />
+       doc="The frequency in hertz that the outbound position messages will be published. NEEDS to be low" />
   <arg name="server_response_speed"
        default="1"
        doc="The frequency in hertz that the server checks for incoming topic start and stop
