@@ -67,7 +67,7 @@ target_link_libraries(${PROJECT_NAME}_node ${GTEST_LIBRARIES} ${catkin_LIBRARIES
 add_executable(${PROJECT_NAME}_demo test/full_demo.cpp)
 set_target_properties(${PROJECT_NAME}_demo PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_demo PREFIX "")
 add_dependencies(${PROJECT_NAME}_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_demo ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_demo ${catkin_LIBRARIES})
 
 ## Tests
 add_executable(agent_test test/test_agent.cpp src/agent.cpp)

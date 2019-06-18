@@ -27,22 +27,24 @@
 #include<memory>
 #include<thread>
 
-PositionPublisher::PositionPublisher(const std::string&             outputTopic,
-                                     const std::string&             outputFrameId,
-                                     const std::weak_ptr<AgentPool> agents,
-                                     const uint32_t                 publisher_queue_length,
-                                     const uint32_t                 publish_spin_rate)
+PositionPublisher::PositionPublisher(const std::string&                      outputTopic,
+                                     const std::string&                      outputFrameId,
+                                     const std::reference_wrapper<AgentPool> agents,
+                                     const uint32_t                          publisher_queue_length,
+                                     const uint32_t                          publish_spin_rate)
  : m_frameId(outputFrameId),
    m_topic(outputTopic),
    m_agents(agents),
-   publish(true),
-   m_thread(&PositionPublisher::publishInThread, std::ref(*this), publisher_queue_length, publish_spin_rate)
+   m_pub(c_nh.advertise<mv_msgs::VehiclePoses>(outputTopic, publisher_queue_length)),
+   run_thread(true),
+   m_thread(&PositionPublisher::publishInThread, std::ref(*this), publish_spin_rate)
 {}
 
 PositionPublisher::~PositionPublisher()
 {
-  this->publish = false;
+  this->run_thread = false;
   this->m_thread.join();
+  this->m_pub.shutdown();
 }
 
 const std::string& PositionPublisher::getFrameId() const noexcept
@@ -55,19 +57,18 @@ const std::string& PositionPublisher::getTopic() const noexcept
   return this->m_topic;
 }
 
-void PositionPublisher::publishInThread(const uint32_t queue_length, const uint32_t spin_rate)
+void PositionPublisher::publishInThread(const uint32_t spin_rate)
 {
-  ros::NodeHandle t_nh;
-  ros::Publisher t_pub = t_nh.advertise<mv_msgs::VehiclePoses>(this->getTopic(), queue_length);
   ros::Rate loop_rate(spin_rate);
 
-  while(t_nh.ok() && this->publish)
+  while(this->c_nh.ok() && this->run_thread)
   {
     // Get data
-    std::shared_ptr<mv_msgs::VehiclePoses> raw_poses(this->m_agents.lock()->getAllPoses());
-    
+    std::shared_ptr<mv_msgs::VehiclePoses> raw_poses(this->m_agents.get().getAllPoses());
+
     // Setup msg out
     mv_msgs::VehiclePoses msg_out;
+
     msg_out.header.stamp = ros::Time::now();
     msg_out.header.frame_id = this->getFrameId();
     msg_out.vehicles.resize(raw_poses->vehicles.size());
@@ -82,12 +83,14 @@ void PositionPublisher::publishInThread(const uint32_t queue_length, const uint3
         if(this->m_tfListener.waitForTransform(this->m_frameId,
                                                pose_ref.header.frame_id,
                                                pose_ref.header.stamp,
-                                               ros::Duration(0.5)))
+                                               ros::Duration(0.1)))
         {
           this->m_tfListener.transformPose(this->getFrameId(),
                                            pose_ref,
                                            msg_out.vehicles.at(agent_it).pose);
         }
+
+        msg_out.vehicles.at(agent_it).robot_id = raw_poses->vehicles.at(agent_it).robot_id;
       }
     }
     catch(const tf::TransformException& e)
@@ -95,7 +98,7 @@ void PositionPublisher::publishInThread(const uint32_t queue_length, const uint3
       ROS_ERROR("PositionPublisher::publishInThread error, %s", e.what());
     }
 
-    t_pub.publish(msg_out);
+    this->m_pub.publish(msg_out);
     loop_rate.sleep();
   }
 

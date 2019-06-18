@@ -25,6 +25,7 @@
 /* C++ Headers */
 #include<map>
 #include<string>
+#include<mutex>
 
 class OutputServer 
 {
@@ -53,6 +54,8 @@ private:
   /* Information needed by the publishers */
   const uint32_t m_publishers_queue_length;
   const uint32_t m_publishing_spin_rate;
+  /* Protects the add and remove operations of the map */
+  std::mutex m_mux;
   /* Holds all the agents currently present */
   AgentPool m_agent_pool;
   /* Holds all of the publishing objects */

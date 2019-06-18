@@ -22,14 +22,14 @@ void callback(const mv_msgs::VehiclePoses& msg) { ROS_INFO_STREAM(msg); };
 
 TEST(Constructor, stack)
 {
-  std::shared_ptr<AgentPool> a_pool(new AgentPool(100, 5, 100));
+  AgentPool a_pool(100, 5, 100);
 
   PositionPublisher("TopicOut", "robot1/odom", a_pool, 5, 100);
 }
 
 TEST(Constructor, heap)
 {
-  std::shared_ptr<AgentPool> a_pool(new AgentPool(100, 5, 100));
+  AgentPool a_pool(100, 5, 100);
 
   PositionPublisher* test = new PositionPublisher("TopicOut", "robot1/odom", a_pool, 5, 100);
 
@@ -38,7 +38,7 @@ TEST(Constructor, heap)
 
 TEST(Get, full)
 {
-  std::shared_ptr<AgentPool> a_pool(new AgentPool(100, 5, 100));
+  AgentPool a_pool(100, 5, 100);
 
   PositionPublisher test("TopicOut", "robot1/odom", a_pool, 5, 100);
 
@@ -49,12 +49,12 @@ TEST(Get, full)
 TEST(PublishPosition, full)
 {
   ros::NodeHandle nh;
-  std::shared_ptr<AgentPool> a_pool(new AgentPool(100, 5, 100));
-  PositionPublisher test("TopicOut", "robot1/odom", a_pool, 5, 100);
+  AgentPool a_pool(1, 5, 100);
+  PositionPublisher test("TopicOut", "robot1/odom", a_pool, 5, 30);
 
-  ros::Subscriber sub = nh.subscribe("TopicOut", 5, callback);
+  ros::Subscriber sub = nh.subscribe("TopicOut", 1, callback);
 
-  ros::Rate print_rate(0.25);
+  ros::Rate print_rate(0.1);
 
   while(ros::ok())
   {

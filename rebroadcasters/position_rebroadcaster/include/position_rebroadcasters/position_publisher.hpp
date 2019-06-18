@@ -37,11 +37,11 @@ public:
   /**
    * @Constructor
    **/
-  PositionPublisher(const std::string&             outputTopic,
-                    const std::string&             outputFrameId,
-                    const std::weak_ptr<AgentPool> agents,
-                    const uint32_t                 publisher_queue_length = 5,
-                    const uint32_t                 publish_spin_rate = 50);
+  PositionPublisher(const std::string&                      outputTopic,
+                    const std::string&                      outputFrameId,
+                    const std::reference_wrapper<AgentPool> agents,
+                    const uint32_t                          publisher_queue_length = 5,
+                    const uint32_t                          publish_spin_rate = 50);
   /**
    * @Deconstructor
    **/
@@ -62,9 +62,12 @@ private:
   /* Used to transform frames */
   tf::TransformListener m_tfListener;
   /* Holds the position data */
-  std::weak_ptr<AgentPool> m_agents;
-  /* Used to control when the thread ends */
-  bool publish;
+  std::reference_wrapper<AgentPool> m_agents;
+  /* ROS stuff */
+  ros::NodeHandle c_nh;
+  ros::Publisher m_pub;
+  /* Tells the thread when to shutdown */
+  bool run_thread;
   /* The thread that will do the publishing */
   std::thread m_thread;
   /**
@@ -74,7 +77,7 @@ private:
    * When ran in a thread object this function will translate and publish msgs
    * at the passed in speed.
    **/
-  void publishInThread(const uint32_t queue_length, const uint32_t spin_rate);
+  void publishInThread(const uint32_t spin_rate);
 };
 
 #endif

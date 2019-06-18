@@ -60,8 +60,6 @@ TEST(GetPose, full)
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-  ROS_INFO_STREAM(makeOdom());
-
   test.getLock().lock();
   EXPECT_EQ(makeOdom().header.frame_id, test.getPose().pose.header.frame_id);
   test.getLock().unlock();

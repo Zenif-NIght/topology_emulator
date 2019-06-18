@@ -23,6 +23,7 @@
 /* C++ Headers */
 #include<map>
 #include<string>
+#include<mutex>
 
 OutputServer::OutputServer(const uint32_t agent_discovery_spin_rate,
                            const uint32_t agent_callback_queue_length,
@@ -39,12 +40,14 @@ OutputServer::OutputServer(const uint32_t agent_discovery_spin_rate,
 bool OutputServer::newSubscription(rebroadcaster_msgs::ConnectPositionServer::Request  &req,
                                    rebroadcaster_msgs::ConnectPositionServer::Response &res)
 {
+  std::unique_lock<std::mutex>(this->m_mux);
+
   this->m_pubs.emplace(std::piecewise_construct,
-                       std::forward_as_tuple(std::string(req.topic)),
+                       std::forward_as_tuple(req.topic),
                        std::forward_as_tuple(
-                         std::string(req.topic),
-                         std::string(req.frameId),
-                         std::weak_ptr<AgentPool>(std::shared_ptr<AgentPool>(&this->m_agent_pool)),
+                         req.topic,
+                         req.frameId,
+                         this->m_agent_pool,
                          this->m_publishers_queue_length,
                          this->m_publishing_spin_rate));
   
@@ -54,6 +57,8 @@ bool OutputServer::newSubscription(rebroadcaster_msgs::ConnectPositionServer::Re
 bool OutputServer::endSubscription(rebroadcaster_msgs::DisconnectRebroadcast::Request  &req,
                                    rebroadcaster_msgs::DisconnectRebroadcast::Response &res)
 {
+  std::unique_lock<std::mutex>(this->m_mux);
+
   this->m_pubs.erase(req.topic);
 
   return true;

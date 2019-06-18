@@ -8,6 +8,5 @@
         type="position_rebroadcaster_demo"
         output="screen"
         respawn="true"
-        required="false"
-        launch-prefix="valgrind" />
+        required="false" />
 </launch>

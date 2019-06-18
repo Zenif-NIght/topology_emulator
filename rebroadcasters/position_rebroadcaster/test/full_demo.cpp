@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
   timer = ros::Time::now();
 
-  ROS_INFO("\nThere should be no more messages!\n");
+  ROS_INFO("There should be no more messages!");
 
   while(m_nh.ok() && (ros::Duration(3) > (ros::Time::now() - timer)))
   {
