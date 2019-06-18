@@ -29,10 +29,10 @@ Agent::Agent(const std::string& agent_name,
  : m_name(agent_name),
    m_thread(&Agent::threadFunction, std::ref(*this), spin_rate)
 {
+  std::unique_lock<std::mutex>(this->getLock());
+
   this->m_pose.robot_id = this->m_name;
-
   this->c_nh.setCallbackQueue(&this->m_callback_queue);
-
   this->m_odom_sub = c_nh.subscribe(odom_topic, callback_queue_legth, &Agent::odomCallback, this);
 }
 
@@ -51,19 +51,16 @@ Agent::~Agent()
 
 const mv_msgs::VehiclePose& Agent::getPose() noexcept
 {
-  std::unique_lock<std::mutex>(this->getLock());
   return this->m_pose;
 }
 
 const std::string& Agent::getName() noexcept
 {
-  std::unique_lock<std::mutex>(this->getLock());
   return this->m_name;
 }
 
 const std::string& Agent::getFrameId() noexcept
 {
-  std::unique_lock<std::mutex>(this->getLock());
   return this->m_pose.pose.header.frame_id;
 }
 
@@ -76,9 +73,9 @@ void Agent::odomCallback(const nav_msgs::Odometry& msg_in)
 {
   std::unique_lock<std::mutex>(this->getLock());
 
-  this->m_pose.robot_id = this->m_name;
+  this->m_pose.robot_id    = this->m_name;
   this->m_pose.pose.header = msg_in.header;
-  this->m_pose.pose.pose = msg_in.pose.pose;
+  this->m_pose.pose.pose   = msg_in.pose.pose;
 }
 
 void Agent::threadFunction(const uint32_t spin_rate)

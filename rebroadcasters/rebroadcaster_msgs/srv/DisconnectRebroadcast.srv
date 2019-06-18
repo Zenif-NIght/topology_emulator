@@ -10,7 +10,3 @@ string topic
 
 ---
 
-## Returns true if all went well and false otherwise
-
-bool exitStatus 
-

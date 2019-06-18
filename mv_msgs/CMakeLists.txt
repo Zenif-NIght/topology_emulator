@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mv_msgs)
+
 find_package(catkin REQUIRED
   COMPONENTS 
     message_generation
+    message_runtime
     geometry_msgs
     std_msgs
 )
@@ -56,6 +58,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   CATKIN_DEPENDS
+    message_runtime
     std_msgs
     geometry_msgs
 )

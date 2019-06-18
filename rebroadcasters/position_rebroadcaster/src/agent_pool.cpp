@@ -41,7 +41,7 @@ AgentPool::~AgentPool()
   this->m_agents.clear();
 }
 
-const mv_msgs::VehiclePose& AgentPool::getPose(const std::string& agent_name)
+mv_msgs::VehiclePose AgentPool::getPose(const std::string& agent_name)
 {
   std::unique_lock<std::mutex>(this->m_mux);
   
@@ -49,6 +49,7 @@ const mv_msgs::VehiclePose& AgentPool::getPose(const std::string& agent_name)
   {
     if(agent_name == (*agent_it)->getName())
     {
+      std::unique_lock<std::mutex>((*agent_it)->getLock());
       return (*agent_it)->getPose();
     }
   }
@@ -63,7 +64,13 @@ std::shared_ptr<mv_msgs::VehiclePoses> AgentPool::getAllPoses()
 
   for(auto agent_it = this->m_agents.cbegin(); agent_it != this->m_agents.cend(); agent_it++)
   {
-    out_msg->vehicles.push_back((*agent_it)->getPose());
+    std::unique_lock<std::mutex>((*agent_it)->getLock());
+    const mv_msgs::VehiclePose& pose_ref = (*agent_it)->getPose();
+
+    if(std::string() != pose_ref.pose.header.frame_id)
+    {
+      out_msg->vehicles.push_back(pose_ref);
+    }
   }
 
   return out_msg;

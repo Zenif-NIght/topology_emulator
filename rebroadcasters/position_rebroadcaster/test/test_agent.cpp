@@ -22,11 +22,16 @@ nav_msgs::Odometry makeOdom()
   nav_msgs::Odometry obj;
 
   obj.header.seq = 42;
+  obj.header.stamp = ros::Time::now();
   obj.header.frame_id = "headerFrameId";
   obj.child_frame_id = "child_frame_id";
   obj.pose.pose.position.x = 1;
   obj.pose.pose.position.y = 2;
   obj.pose.pose.position.z = 3;
+  obj.pose.pose.orientation.x = 4;
+  obj.pose.pose.orientation.y = 5;
+  obj.pose.pose.orientation.z = 6;
+  obj.pose.pose.orientation.w = 7;
 
   return obj;
 }
@@ -55,7 +60,11 @@ TEST(GetPose, full)
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
+  ROS_INFO_STREAM(makeOdom());
+
+  test.getLock().lock();
   EXPECT_EQ(makeOdom().header.frame_id, test.getPose().pose.header.frame_id);
+  test.getLock().unlock();
 }
 
 TEST(Get, name)

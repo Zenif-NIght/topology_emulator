@@ -12,7 +12,7 @@
 #include"position_rebroadcasters/agent_pool.hpp"
 
 /* mv_msgs Headers */
-//#include<mv_msgs/VehiclePoses.h>
+#include<mv_msgs/VehiclePoses.h>
 
 /* ROS Headers */
 #include<ros/ros.h>
@@ -20,13 +20,12 @@
 #include<tf/tf.h>
 #include<tf/transform_listener.h>
 
+#include<geometry_msgs/PoseStamped.h>
+
 /* C++ Headers */
 #include<string>
 #include<memory>
 #include<thread>
-
-/* Static variables */
-tf::TransformListener PositionPublisher::m_tfListener;
 
 PositionPublisher::PositionPublisher(const std::string&             outputTopic,
                                      const std::string&             outputFrameId,
@@ -70,7 +69,7 @@ void PositionPublisher::publishInThread(const uint32_t queue_length, const uint3
     // Setup msg out
     mv_msgs::VehiclePoses msg_out;
     msg_out.header.stamp = ros::Time::now();
-    msg_out.header.frameId = this->getFrameId();
+    msg_out.header.frame_id = this->getFrameId();
     msg_out.vehicles.resize(raw_poses->vehicles.size());
 
     // Transform data
@@ -78,9 +77,17 @@ void PositionPublisher::publishInThread(const uint32_t queue_length, const uint3
     {
       for(uint32_t agent_it = 0; agent_it < raw_poses->vehicles.size(); agent_it++)
       {
-        this->m_tfListener.transformPose(this->getFrameId(),
-                                         raw_poses->vehicles.at(agent_it),
-                                         msg_out.vehicles.at(agent_it));
+        const geometry_msgs::PoseStamped& pose_ref = raw_poses->vehicles.at(agent_it).pose;
+
+        if(this->m_tfListener.waitForTransform(this->m_frameId,
+                                               pose_ref.header.frame_id,
+                                               pose_ref.header.stamp,
+                                               ros::Duration(0.5)))
+        {
+          this->m_tfListener.transformPose(this->getFrameId(),
+                                           pose_ref,
+                                           msg_out.vehicles.at(agent_it).pose);
+        }
       }
     }
     catch(const tf::TransformException& e)

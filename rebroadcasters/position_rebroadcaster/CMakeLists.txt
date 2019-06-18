@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
     rebroadcaster_msgs
     mv_msgs
     roscpp
+    tf
     message_runtime 
     nav_msgs
 )
@@ -24,12 +25,13 @@ find_package(GTest REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+    #  INCLUDE_DIRS include
 #  LIBRARIES position_rebroadcasters
   CATKIN_DEPENDS
     rebroadcaster_msgs
     mv_msgs
     roscpp
+    tf
     message_runtime
     nav_msgs
   DEPENDS
@@ -49,16 +51,25 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/position_rebroadcasters.cpp
-# )
+## Position Rebroadcaster Node
+add_executable(${PROJECT_NAME}_node
+  src/${PROJECT_NAME}_node.cpp
+  src/output_server.cpp
+  src/position_publisher.cpp
+  src/agent_pool.cpp
+  src/agent.cpp
+)
+set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_node PREFIX "")
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_node ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
 
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+## Demo
+add_executable(${PROJECT_NAME}_demo test/full_demo.cpp)
+set_target_properties(${PROJECT_NAME}_demo PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_demo PREFIX "")
+add_dependencies(${PROJECT_NAME}_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_demo ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
 
+## Tests
 add_executable(agent_test test/test_agent.cpp src/agent.cpp)
 set_target_properties(agent_test PROPERTIES OUTPUT_NAME agent_test PREFIX "")
 add_dependencies(agent_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -69,22 +80,24 @@ set_target_properties(agent_pool_test PROPERTIES OUTPUT_NAME agent_pool_test PRE
 add_dependencies(agent_pool_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(agent_pool_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
 
+add_executable(position_publisher_test test/test_position_publisher.cpp src/position_publisher.cpp src/agent_pool.cpp src/agent.cpp)
+set_target_properties(position_publisher_test PROPERTIES OUTPUT_NAME position_publisher_test PREFIX "")
+add_dependencies(position_publisher_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(position_publisher_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark executables and/or libraries for installation
-install(TARGETS agent_test agent_pool_test
+install(
+  TARGETS 
+    ${PROJECT_NAME}_node
+    
+    ${PROJECT_NAME}_demo
+    agent_test
+    agent_pool_test
+    position_publisher_test
+  
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -3,6 +3,8 @@ project(rebroadcaster_msgs)
 find_package(catkin REQUIRED
   COMPONENTS
     message_generation
+    message_runtime
+    std_msgs
 )
 
 ################################################
@@ -44,6 +46,11 @@ add_service_files(
     DisconnectRebroadcast.srv
 )
 
+generate_messages(
+  DEPENDENCIES
+    std_msgs
+)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -55,6 +62,7 @@ add_service_files(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   CATKIN_DEPENDS
-    message_generation
+    message_runtime
+    std_msgs
 )
 

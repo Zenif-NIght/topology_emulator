@@ -14,8 +14,8 @@
 #include"position_rebroadcasters/agent.hpp"
 
 /* Multi Vehicle Headers */
-//#include"mv_msgs/VehiclePose.h"
-//#include"mv_msgs/VehiclePoses.h"
+#include"mv_msgs/VehiclePose.h"
+#include"mv_msgs/VehiclePoses.h"
 
 /* ROS Headers */
 #include<ros/ros.h>
@@ -54,7 +54,7 @@ public:
    * @brief
    * Returns the pose that is held by the passed in agent.
    **/
-  const mv_msgs::VehiclePose& getPose(const std::string& agent_name);
+  mv_msgs::VehiclePose getPose(const std::string& agent_name);
   /**
    * @getAllPoses
    *

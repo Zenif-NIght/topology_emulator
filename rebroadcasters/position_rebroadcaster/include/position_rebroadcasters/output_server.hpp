@@ -16,8 +16,8 @@
 #include"position_rebroadcasters/position_publisher.hpp"
 
 /* rebroadcaste_msgs Headers */
-//#include<rebroadcaste_msgs/ConnectPositionServer.h>
-//#include<rebroadcaste_msgs/DisconnectRebroadcast.h>
+#include<rebroadcaster_msgs/ConnectPositionServer.h>
+#include<rebroadcaster_msgs/DisconnectRebroadcast.h>
 
 /* ROS Headers */
 #include<ros/ros.h>
@@ -40,7 +40,7 @@ public:
   /**
    * @Constructor
    **/
-  OutputServer(const uint32_t agent_descovery_spin_rate,
+  OutputServer(const uint32_t agent_discovery_spin_rate,
                const uint32_t agent_callback_queue_length,
                const uint32_t agent_refresh_rate,
                const uint32_t publishers_queue_length,
@@ -48,7 +48,7 @@ public:
   /**
    * @Deconstructor
    **/
-  ~OutputServer();
+  ~OutputServer() = default;
 private:
   /* Information needed by the publishers */
   const uint32_t m_publishers_queue_length;
@@ -70,16 +70,16 @@ private:
    * Makes a new thread that will publish VehiclePoses in the frame that
    * is passed in.
    **/
-  void newSubscription(rebroadcaste_msgs::ConnectPositionServer::Request  &req,
-                       rebroadcaste_msgs::ConnectPositionServer::Response &res);
+  bool newSubscription(rebroadcaster_msgs::ConnectPositionServer::Request  &req,
+                       rebroadcaster_msgs::ConnectPositionServer::Response &res);
   /**
    * @endSubscription
    *
    * @brief
    * Closes a subscription.
    **/
-  void endSubscription(rebroadcaste_msgs::DisconnectRebroadcast::Request  &req,
-                       rebroadcaste_msgs::DisconnectRebroadcast::Response &res);
+  bool endSubscription(rebroadcaster_msgs::DisconnectRebroadcast::Request  &req,
+                       rebroadcaster_msgs::DisconnectRebroadcast::Response &res);
 };
 
 #endif

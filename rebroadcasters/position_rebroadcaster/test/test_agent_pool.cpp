@@ -80,7 +80,7 @@ TEST(getAllPoses, full)
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   
-  EXPECT_EQ(1, test.getAllPoses()->vehicles.size());
+  EXPECT_EQ(0, test.getAllPoses()->vehicles.size());
 
   ros::NodeHandle m_nh;
   ros::Publisher odom_pub  = m_nh.advertise<nav_msgs::Odometry>("robot3/odom", 5);
@@ -101,8 +101,8 @@ TEST(getAllPoses, full)
   odom_pub3.publish(obj);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-  EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(3).pose.header.frame_id); 
+ 
+  EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(0).pose.header.frame_id); 
   EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(1).pose.header.frame_id);
   EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(2).pose.header.frame_id);
 
@@ -112,7 +112,7 @@ TEST(getAllPoses, full)
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-  EXPECT_EQ(1, test.getAllPoses()->vehicles.size());
+  EXPECT_EQ(0, test.getAllPoses()->vehicles.size());
 }
 
 int main(int argc, char** argv)

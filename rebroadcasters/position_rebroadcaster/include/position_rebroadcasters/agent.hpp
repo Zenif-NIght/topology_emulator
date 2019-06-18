@@ -11,7 +11,7 @@
 #define AGENT_HPP
 
 /* Multi Vehicle Headers */
-//#include"mv_msgs/VehiclePose.h"
+#include"mv_msgs/VehiclePose.h"
 
 /* C++ Headers */
 #include<mutex>

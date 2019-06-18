@@ -1,0 +1,6 @@
+<!-- test_position_publisher.launch -->
+
+<launch>
+  <node name="position_publisher_test" type="position_publisher_test" pkg="position_rebroadcaster" output="screen" launch-prefix="valgrind" />
+</launch>
+

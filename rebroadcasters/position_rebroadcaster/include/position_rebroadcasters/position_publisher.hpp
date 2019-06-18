@@ -60,7 +60,7 @@ private:
   /* The topic that this class publishes on */
   const std::string m_topic;
   /* Used to transform frames */
-  static tf::TransformListener m_tfListener;
+  tf::TransformListener m_tfListener;
   /* Holds the position data */
   std::weak_ptr<AgentPool> m_agents;
   /* Used to control when the thread ends */
