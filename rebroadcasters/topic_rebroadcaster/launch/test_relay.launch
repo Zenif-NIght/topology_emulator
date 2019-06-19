@@ -1,0 +1,6 @@
+<!-- test_relay.launch -->
+
+<launch>
+  <node name="test_relay_node" type="test_relay_node" pkg="topic_rebroadcaster" output="screen" launch-prefix="valgrind" /> 
+</launch>
+

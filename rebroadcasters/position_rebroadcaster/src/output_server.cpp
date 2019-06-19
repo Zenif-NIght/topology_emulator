@@ -13,7 +13,7 @@
 #include"position_rebroadcasters/agent_pool.hpp"
 #include"position_rebroadcasters/position_publisher.hpp"
 
-/* rebroadcaste_msgs Headers */
+/* rebroadcaster_msgs Headers */
 #include<rebroadcaster_msgs/ConnectPositionServer.h>
 #include<rebroadcaster_msgs/DisconnectRebroadcast.h>
 

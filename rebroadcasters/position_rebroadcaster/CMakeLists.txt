@@ -32,11 +32,9 @@ catkin_package(
     mv_msgs
     roscpp
     tf
-    message_runtime
     nav_msgs
   DEPENDS
-    gtest
-    gtest_main
+    ${GTEST_LIBRARIES}
 )
 
 ###########
