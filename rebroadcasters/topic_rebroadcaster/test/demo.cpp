@@ -75,7 +75,7 @@ int main(int argc, char** argv)
   ros::Time timer = ros::Time::now();
   ros::Rate loop_rate(10);
 
-  while(ros::ok() && (ros::Duration(10) > (ros::Time::now() - timer)))
+  while(ros::ok() && (ros::Duration(3) > (ros::Time::now() - timer)))
   {
     ros::spinOnce();
     loop_rate.sleep();

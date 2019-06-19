@@ -5,8 +5,6 @@
   <node name="topic_rebroadcaster_demo"
         pkg="topic_rebroadcaster"
         type="topic_rebroadcaster_demo"
-        output="screen"
-        respawn="false"
-        required="false" />
+        output="screen" />
 </launch>
 

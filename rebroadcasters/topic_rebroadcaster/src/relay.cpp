@@ -81,7 +81,7 @@ void Relay::subCallback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_
 
   ros::Time timer = ros::Time::now();
 
-  while((0 == this->m_pub.getNumSubscribers()) && (ros::Duration(1) < (ros::Time::now() - timer)));
+  while((0 == this->m_pub.getNumSubscribers()) && (ros::Duration(1) > (ros::Time::now() - timer)));
 
   this->m_pub.publish(msg);
   return;
