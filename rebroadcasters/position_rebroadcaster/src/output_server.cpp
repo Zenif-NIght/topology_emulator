@@ -59,7 +59,7 @@ bool OutputServer::endSubscription(rebroadcaster_msgs::DisconnectRebroadcast::Re
 {
   std::unique_lock<std::mutex>(this->m_mux);
 
-  this->m_pubs.erase(req.topic);
+  this->m_pubs.erase(req.topic_out);
 
   return true;
 }

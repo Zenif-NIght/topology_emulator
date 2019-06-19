@@ -34,7 +34,7 @@ Relay::Relay(const std::string& input_topic,
    pub_is_advertised(false),
    m_thread(&Relay::runRelay, std::ref(*this), spin_rate)
 {
-  c_nh.setCallbackQueue(&this->m_callback_queue); 
+  this->c_nh.setCallbackQueue(&this->m_callback_queue); 
 }
 
 Relay::~Relay()
@@ -75,9 +75,13 @@ void Relay::subCallback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_
 
   if(!this->pub_is_advertised)
   {
-    this->m_pub = msg->advertise(this->c_nh, this->getOutputTopic(), this->m_pub_queue_length);
     this->pub_is_advertised = true;
+    this->m_pub = msg->advertise(this->c_nh, this->getOutputTopic(), this->m_pub_queue_length);
   }
+
+  ros::Time timer = ros::Time::now();
+
+  while((0 == this->m_pub.getNumSubscribers()) && (ros::Duration(1) < (ros::Time::now() - timer)));
 
   this->m_pub.publish(msg);
   return;

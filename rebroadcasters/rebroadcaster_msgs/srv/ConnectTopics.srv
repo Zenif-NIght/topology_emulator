@@ -12,11 +12,9 @@ string topic_in
 string topic_out
 
 ## The rate that the topics will updated.
-## Default is 30 Hz
 uint32 spin_rate
 
 ## The lenght of both the publishing and subscribing queues
-## Default is 5
 uint32 queue_length
 
 ---

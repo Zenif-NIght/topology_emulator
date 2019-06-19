@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
   // Close topic
   rebroadcaster_msgs::DisconnectRebroadcast end_obj;
-  srv_obj.request.topic = "to_full_demo";
+  end_obj.request.topic_out = "to_full_demo";
 
   if(!end_client.call(end_obj))
   {

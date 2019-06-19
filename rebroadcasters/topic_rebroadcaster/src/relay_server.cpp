@@ -35,13 +35,13 @@ bool RelayServer::addCallback(rebroadcaster_msgs::ConnectTopics::Request&  req,
   std::unique_lock<std::mutex>(this->m_mux);
 
   this->m_relays.emplace(std::piecewise_construct,
-                         std::forward_as_tuple(req.topic_out),
+                         std::forward_as_tuple(std::string(req.topic_in + req.topic_out)),
                          std::forward_as_tuple(
                            req.topic_in,
                            req.topic_out,
-                           (0 == req.queue_length) ? 5 : req.queue_length,
-                           (0 == req.queue_length) ? 5 : req.queue_length,
-                           (0 == req.spin_rate) ? 30 : req.spin_rate));
+                           req.queue_length,
+                           req.queue_length,
+                           req.spin_rate));
   return true;
 }
 
@@ -50,7 +50,7 @@ bool RelayServer::removeCallback(rebroadcaster_msgs::DisconnectRebroadcast::Requ
 {
   std::unique_lock<std::mutex>(this->m_mux);
 
-  this->m_relays.erase(req.topic);
+  this->m_relays.erase(std::string(req.topic_in + req.topic_out));
 
   return true;
 }

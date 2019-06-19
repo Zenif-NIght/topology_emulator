@@ -6,7 +6,9 @@
 ##
 
 ## Receivers ROS topic
-string topic
+string topic_out
+
+string topic_in
 
 ---
 

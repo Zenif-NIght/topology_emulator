@@ -58,6 +58,7 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+## Topic Server
 add_executable(${PROJECT_NAME}_node
   src/server_node.cpp
   src/relay_server.cpp
@@ -66,6 +67,12 @@ add_executable(${PROJECT_NAME}_node
 set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_node PREFIX "")
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
+
+## Demo
+add_executable(${PROJECT_NAME}_demo test/demo.cpp)
+set_target_properties(${PROJECT_NAME}_demo PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_demo PREFIX "")
+add_dependencies(${PROJECT_NAME}_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_demo ${catkin_LIBRARIES})
 
 ## Tests
 add_executable(test_relay_node test/test_relay.cpp src/relay.cpp)
@@ -92,6 +99,7 @@ install(
   TARGETS
     ${PROJECT_NAME}_node
 
+    ${PROJECT_NAME}_demo
     test_relay_node
 
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
