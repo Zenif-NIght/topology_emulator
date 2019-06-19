@@ -1,17 +1,18 @@
 #!/usr/bin/env python
-from mv_msgs.msg import VehiclePoses, Neighbors
-from pdb import set_trace as pause
+from __future__ import division
+
+from mv_msgs.msg import VehiclePoses, VehiclePose, Neighbors
+from visualization_msgs.msg import MarkerArray, Marker
+
 import rospy
-import random
-import math
 
-
-class NetworkTopologyEmulator:
+class NetworkTopologyEmulator(object):
     def __init__(self, rate=10):
+        """Initialize the class with a rate (default of 10) in Hz"""
         # The network is stored as a mapping of robot_id:[robot_ids]
         self.network = {}
 
-        # The list of all the robots in the network
+        # The mapping of robot:pose
         self.robots = {}
         
         # The publishers for each robot stored as a mapping of
@@ -21,6 +22,9 @@ class NetworkTopologyEmulator:
         # Flag for if its the first time to indicate if publishers should be 
         # initialized
         self.first_time = True
+
+        # Keep the rate in Hertz for use with vizualization
+        self.rate_hz = rate
         
         ####################### ROS init stuff #################################
         rospy.init_node('network_emulator')
@@ -28,60 +32,100 @@ class NetworkTopologyEmulator:
                                             VehiclePoses, 
                                             self.robot_poses_received)
         self.rate = rospy.Rate(rate)
+        self.viz_publisher = rospy.Publisher('network_graph', 
+                                             MarkerArray, 
+                                             queue_size=1)
         ########################################################################
         
     def robot_poses_received(self, robot_poses):
+        """The callback function for when VehiclePoses messages are received
+
+        This receives the VehiclePoses message and stores the data in the
+        internal self.robots variable
+        """
         # intialize the robot dependant variables now that we have the robot_ids
+        # only do this the first time
         if self.first_time:
             self.first_time = False
             for vehicle in robot_poses.vehicles:
                 robot_id = vehicle.robot_id
                 # create the publishers for each robot
                 self.robot_publishers[robot_id] = \
-                    rospy.Publisher('{}/neighbors'.format(robot_id),
-                                    Neighbors)
+                    rospy.Publisher('/{}/neighbors'.format(robot_id),
+                                    Neighbors,
+                                    queue_size=1)
         
         # update self.robots to reflect the current state of the network
         for vehicle in robot_poses.vehicles:
             robot_id = vehicle.robot_id
             pose = vehicle.pose
             self.robots[robot_id] = pose
-        self.network = self.build_network()
 
     def build_network(self):
-        pass
+        """Update the emulation of the network topology.
+        
+        This is where the emulation of the different network types actually
+        happens. Thus this method needs to be overridden by inheriting 
+        classes.
+        """
+        for robot in self.robots.keys():
+            self.network[robot] = self.robots.keys()
 
+    def publish_network(self):
+        """Publish the respective adjacency list to each robot's topic"""
+        for robot in self.robot_publishers.keys():
+            pub = self.robot_publishers[robot]
+            msg = Neighbors()
+            msg.neighbors = self.network[robot]
+            pub.publish(msg)
+
+    def publish_viz(self):
+        """Publishes the network for vizualization
+        
+        Publishes the network with arrow markers that point in the direction of 
+        information flow. In other words, if robot1 can "see" robot2 the arrow points from robot2 to robot1.
+        """
+        arrows = MarkerArray()
+        for robot in self.network.keys():
+            for other_robot in self.network[robot]:
+                arrow = Marker()
+                arrow.header.stamp = rospy.Time.now()
+                arrow.header.frame_id = "/my_frame"
+                arrow.ns = "network_graph"
+                arrow.id = int("{}{}".format(other_robot, robot))
+                arrow.type = Marker.ARROW
+                arrow.action = Marker.ADD
+                arrow.scale.x = 0.1
+                arrow.scale.y = 0.15
+                arrow.scale.z = 0.15
+                arrow.color.a = 0.5
+                arrow.color.r = 0.
+                arrow.color.g = 0.
+                arrow.color.b = 1.
+                arrow.points = [self.robots[other_robot].pose.position,
+                                self.robots[robot].pose.position]
+                arrow.lifetime = rospy.Duration.from_sec(1/self.rate_hz)
+                
+                arrows.markers.append(arrow)
+        
+        self.viz_publisher.publish(arrows)
+                
+    # TODO: write service call portion of class
+
+    def run(self):
+        """Calculates the network topology and publishes at a fixed rate
+
+        Calculates the network topology based on the inheriting class's
+        definition. Then publishes the topology to the robots. Uses the rate
+        passed in at initialization to determine the rate at which to loop. 
+        """
+        while not rospy.is_shutdown():
+            self.build_network()
+            self.publish_network()
+            self.publish_viz()
+            self.rate.sleep()
 
 if __name__ == '__main__':
-    emulator = NetworkTopologyEmulator(10)
-    test = True
-    if test:
-        pub = rospy.Publisher('robot_poses', VehiclePoses)
-        position_range = 5
-
-
-        while not rospy.is_shutdown():
-            robots = VehiclePoses()
-            for i in range(5):
-                robot = VehiclePose()
-                robot.pose.header.stamp = rospy.get_rostime()
-                robot.pose.pose.position.x = random.uniform(-position_range, position_range)
-                robot.pose.pose.position.y = random.uniform(-position_range, position_range)
-                robot.pose.pose.position.z = random.uniform(-position_range, position_range)
-                u1 = random.random()
-                u2 = random.random()
-                u3 = random.random()
-                robot.pose.pose.orientation.w = math.sqrt(1-u1)*math.sin(2*math.pi*u2)
-                robot.pose.pose.orientation.x = math.sqrt(1-u1)*math.cos(2*math.pi*u2)
-                robot.pose.pose.orientation.y = math.sqrt(u1)*math.sin(2*math.pi*u3)
-                robot.pose.pose.orientation.z = math.sqrt(u1)*math.cos(2*math.pi*u3)
-                robot.robot_id = str(i)
-            
-                robots.vehicles.append(robot)
-            
-            robots.header.stamp = rospy.get_rostime()
-            pub.publish(robots)
-            rospy.sleep(5.)
-    else:
-        rospy.spin()
+    emulator = NetworkTopologyEmulator(1)
+    emulator.run()
 
