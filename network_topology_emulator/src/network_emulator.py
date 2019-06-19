@@ -2,11 +2,13 @@
 from __future__ import division
 
 from mv_msgs.msg import VehiclePoses, VehiclePose, Neighbors
+# from network_topology_emulator.srv import Neighbors as NeighborsService
+from network_topology_emulator.srv import GetNeighbors
 from visualization_msgs.msg import MarkerArray, Marker
 
 import rospy
 
-class NetworkTopologyEmulator(object):
+class NetworkEmulator(object):
     def __init__(self, rate=10):
         """Initialize the class with a rate (default of 10) in Hz"""
         # The network is stored as a mapping of robot_id:[robot_ids]
@@ -23,7 +25,7 @@ class NetworkTopologyEmulator(object):
         # initialized
         self.first_time = True
 
-        # Keep the rate in Hertz for use with vizualization
+        # Save the rate in Hertz for use with vizualization
         self.rate_hz = rate
         
         ####################### ROS init stuff #################################
@@ -35,6 +37,9 @@ class NetworkTopologyEmulator(object):
         self.viz_publisher = rospy.Publisher('network_graph', 
                                              MarkerArray, 
                                              queue_size=1)
+        self.service = rospy.Service("robot_neighbors", 
+                                     GetNeighbors, 
+                                     self.get_neighbors)
         ########################################################################
         
     def robot_poses_received(self, robot_poses):
@@ -79,38 +84,68 @@ class NetworkTopologyEmulator(object):
             msg.neighbors = self.network[robot]
             pub.publish(msg)
 
-    def publish_viz(self):
-        """Publishes the network for vizualization
+    def build_viz(self):
+        """Builds the network for vizualization
         
-        Publishes the network with arrow markers that point in the direction of 
-        information flow. In other words, if robot1 can "see" robot2 the arrow points from robot2 to robot1.
+        Builds the network with arrow markers that point in the direction of 
+        information flow. In other words, if robot1 can "see" robot2 the arrow points from robot2 to robot1. Also adds small markers that indicate each robots position
         """
-        arrows = MarkerArray()
+        i = 1
+        markers = MarkerArray()
+        # create a marker and build a point array to mark the robot positions
+        robot_marker = Marker()
+        robot_marker.header.frame_id = "/my_frame"
+        robot_marker.header.stamp = rospy.Time.now()
+        robot_marker.ns = "network_graph"
+        robot_marker.id = 0
+        robot_marker.type = Marker.POINTS
+        robot_marker.action = Marker.ADD
+        robot_marker.scale.x = 0.15
+        robot_marker.scale.y = 0.15
+        robot_marker.color.a = 0.75
+        robot_marker.color.r = 0.
+        robot_marker.color.g = 1.
+        robot_marker.color.b = 0.
+        robot_marker.lifetime = rospy.Duration.from_sec(1/self.rate_hz)
+
         for robot in self.network.keys():
+            # Add each robot's position to the points list
+            robot_marker.points.append(self.robots[robot].pose.position)
+
             for other_robot in self.network[robot]:
-                arrow = Marker()
-                arrow.header.stamp = rospy.Time.now()
-                arrow.header.frame_id = "/my_frame"
-                arrow.ns = "network_graph"
-                arrow.id = int("{}{}".format(other_robot, robot))
-                arrow.type = Marker.ARROW
-                arrow.action = Marker.ADD
-                arrow.scale.x = 0.1
-                arrow.scale.y = 0.15
-                arrow.scale.z = 0.15
-                arrow.color.a = 0.5
-                arrow.color.r = 0.
-                arrow.color.g = 0.
-                arrow.color.b = 1.
-                arrow.points = [self.robots[other_robot].pose.position,
+                # Create a marker and build all the aspects that are constant 
+                # for all the network arrows
+                arrow_marker = Marker()
+                arrow_marker.header.frame_id = "/my_frame"
+                arrow_marker.ns = "network_graph"
+                arrow_marker.type = Marker.ARROW
+                arrow_marker.action = Marker.ADD
+                arrow_marker.scale.x = 0.1
+                arrow_marker.scale.y = 0.15
+                arrow_marker.scale.z = 0.15
+                arrow_marker.color.a = 0.5
+                arrow_marker.color.r = 0.
+                arrow_marker.color.g = 0.
+                arrow_marker.color.b = 1.
+                arrow_marker.lifetime = rospy.Duration.from_sec(1/self.rate_hz)
+
+                # Build the marker details that are different for each arrow
+                arrow_marker.header.stamp = rospy.Time.now()
+                arrow_marker.id = i
+                arrow_marker.points = [self.robots[other_robot].pose.position,
                                 self.robots[robot].pose.position]
-                arrow.lifetime = rospy.Duration.from_sec(1/self.rate_hz)
                 
-                arrows.markers.append(arrow)
-        
-        self.viz_publisher.publish(arrows)
+                markers.markers.append(arrow_marker)
+                i += 1
+            
+        markers.markers.append(robot_marker)
+        return markers
                 
-    # TODO: write service call portion of class
+    def get_neighbors(self, robot_request):
+        """The service callback that returns a list of neighbors for a robot"""
+        robot = robot_request.robot_id
+        neighbors = self.network[robot]
+        return Neighbors(neighbors)
 
     def run(self):
         """Calculates the network topology and publishes at a fixed rate
@@ -119,13 +154,15 @@ class NetworkTopologyEmulator(object):
         definition. Then publishes the topology to the robots. Uses the rate
         passed in at initialization to determine the rate at which to loop. 
         """
+        rospy.wait_for_message("robot_poses", VehiclePoses)
         while not rospy.is_shutdown():
             self.build_network()
             self.publish_network()
-            self.publish_viz()
+            markers = self.build_viz()
+            self.viz_publisher.publish(markers)
             self.rate.sleep()
 
 if __name__ == '__main__':
-    emulator = NetworkTopologyEmulator(1)
+    emulator = NetworkEmulator(1)
     emulator.run()
 

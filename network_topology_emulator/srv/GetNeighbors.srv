@@ -9,4 +9,4 @@
 
 string robot_id
 ---
-my_msgs/Neighbors neighbors
+mv_msgs/Neighbors neighbors

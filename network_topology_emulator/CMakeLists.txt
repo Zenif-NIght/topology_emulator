@@ -59,7 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  Neighbors.srv
+  GetNeighbors.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -70,10 +70,11 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
+generate_messages(
+  DEPENDENCIES
+    mv_msgs   std_msgs
 #   geometry_msgs#   nav_msgs#   std_msgs
-# )
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

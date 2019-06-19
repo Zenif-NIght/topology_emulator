@@ -1,8 +1,11 @@
-from network_topology_emulator import NetworkTopologyEmulator
+#!/usr/bin/env python
+from network_emulator import NetworkEmulator
+from visualization_msgs.msg import Marker
+import rospy
 import math
 
-class DeltaDiskEmulator(NetworkTopologyEmulator):
-    def __init__(self, rate=10, disk_radius=3):
+class DeltaDiskEmulator(NetworkEmulator):
+    def __init__(self, rate=10, disk_radius=5):
         """ Initialize with a disk radius input (default is 1)
 
         Disk radius units mirror whatever units are used for the robot poses
@@ -36,6 +39,32 @@ class DeltaDiskEmulator(NetworkTopologyEmulator):
                     neighbors.append(other_robot)
             self.network[robot] = neighbors
 
+    def build_viz(self):
+        markers = super(DeltaDiskEmulator, self).build_viz()
+
+        # define a sphere_list marker to mark all the robot disks
+        marker = Marker()
+        marker.header.frame_id = "/my_frame"
+        marker.header.stamp = rospy.Time.now()
+        marker.id = 1000
+        marker.ns = "network_graph"
+        marker.type = Marker.SPHERE_LIST
+        marker.action = Marker.ADD
+        marker.scale.x = 2 * self.disk_radius
+        marker.scale.y = 2 * self.disk_radius
+        marker.scale.z = 2 * self.disk_radius
+        marker.color.a = 0.3
+        marker.color.r = 0.5
+        marker.color.g = 0.5
+        marker.color.b = 0.5
+        marker.lifetime = rospy.Duration.from_sec(1/self.rate_hz)
+
+        for robot in self.robots.keys():
+            marker.points.append(self.robots[robot].pose.position)
+
+        markers.markers.append(marker)
+
+        return markers
 
 if __name__ == "__main__":
     emulator = DeltaDiskEmulator(10, 5)
