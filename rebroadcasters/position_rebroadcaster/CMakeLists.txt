@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(position_rebroadcaster)
 
 add_compile_options(-std=c++11 -g -O0)
+#add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED
   COMPONENTS
@@ -9,7 +10,7 @@ find_package(catkin REQUIRED
     mv_msgs
     roscpp
     tf
-    message_runtime 
+    message_runtime
     nav_msgs
 )
 
@@ -18,15 +19,8 @@ find_package(GTest REQUIRED)
 ###################################
 ## catkin specific configuration ##
 ###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
+
 catkin_package(
-    #  INCLUDE_DIRS include
-#  LIBRARIES position_rebroadcasters
   CATKIN_DEPENDS
     rebroadcaster_msgs
     mv_msgs
@@ -41,8 +35,6 @@ catkin_package(
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
 include_directories(
   include
   ${GTEST_INCLUDE_DIRS}
@@ -88,14 +80,14 @@ target_link_libraries(position_publisher_test ${GTEST_LIBRARIES} ${catkin_LIBRAR
 #############
 
 install(
-  TARGETS 
+  TARGETS
     ${PROJECT_NAME}_node
-    
+
     ${PROJECT_NAME}_demo
     agent_test
     agent_pool_test
     position_publisher_test
-  
+
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

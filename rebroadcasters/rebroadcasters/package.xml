@@ -6,5 +6,7 @@
   <maintainer email="james@todo.todo">james</maintainer>
   <license>TODO</license>
   <buildtool_depend>catkin</buildtool_depend>
-  <export></export>
+  <export>
+    <metapackage/>
+  </export>
 </package>

@@ -27,7 +27,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "topic_rebroadcaster_demo_node");
   ros::NodeHandle m_nh;
 
-  ros::ServiceClient connect_client = m_nh.serviceClient<rebroadcaster_msgs::ConnectTopics>("topic_rebroadcaster/connect");
+  ros::ServiceClient connect_client    = m_nh.serviceClient<rebroadcaster_msgs::ConnectTopics>        ("topic_rebroadcaster/connect");
   ros::ServiceClient disconnect_client = m_nh.serviceClient<rebroadcaster_msgs::DisconnectRebroadcast>("topic_rebroadcaster/disconnect");
 
   ros::Publisher pub1 = m_nh.advertise<std_msgs::String>("outTopic1", 5);
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
   ROS_INFO("Topics connected");
 
-  // Play around
+  // Publish messages
   std_msgs::String msg;
   msg.data = "Now";
   pub1.publish(msg);
@@ -72,6 +72,7 @@ int main(int argc, char** argv)
   msg.data = "Them!";
   pub1.publish(msg);
 
+  // Wait for the messages to come back
   ros::Time timer = ros::Time::now();
   ros::Rate loop_rate(10);
 
@@ -96,7 +97,7 @@ int main(int argc, char** argv)
 
   ROS_INFO("Topics disconnected");
 
-  // Make sure they aren't connected
+  // Make sure the topics aren't connected anymore
   msg.data = "Now";
   pub1.publish(msg);
   msg.data = "I";

@@ -52,7 +52,9 @@ int main(int argc, char** argv)
 
   ros::Rate loop_rate(0.2);
   ros::Time timer = ros::Time::now();
-  
+
+//  std::cin.get();
+
   // Print messages
   while(m_nh.ok() && (ros::Duration(10) > (ros::Time::now() - timer)))
   {

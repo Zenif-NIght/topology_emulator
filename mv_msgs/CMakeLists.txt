@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(mv_msgs)
 
 find_package(catkin REQUIRED
-  COMPONENTS 
+  COMPONENTS
     message_generation
     message_runtime
     geometry_msgs

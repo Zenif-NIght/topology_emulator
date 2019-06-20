@@ -30,6 +30,10 @@ class RelayServer
 public:
   /**
    * @Default Constructor
+   *
+   * @brief
+   * After initialization the object will automatically handle ROS service
+   * calls and constructing and deconstructing Relay objects.
    **/
   RelayServer();
   /**

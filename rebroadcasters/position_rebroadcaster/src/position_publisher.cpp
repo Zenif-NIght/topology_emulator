@@ -27,6 +27,12 @@
 #include<memory>
 #include<thread>
 
+#define VISUALIZE false
+
+#if VISUALIZE
+  #include<nav_msgs/Odometry.h>
+#endif
+
 PositionPublisher::PositionPublisher(const std::string&                      outputTopic,
                                      const std::string&                      outputFrameId,
                                      const std::reference_wrapper<AgentPool> agents,
@@ -60,6 +66,10 @@ const std::string& PositionPublisher::getTopic() const noexcept
 void PositionPublisher::publishInThread(const uint32_t spin_rate)
 {
   ros::Rate loop_rate(spin_rate);
+
+#if VISUALIZE
+  ros::Publisher visualize_pub = this->c_nh.advertise<nav_msgs::Odometry>("visualize_transform_odom", 50);
+#endif
 
   while(this->c_nh.ok() && this->run_thread)
   {
@@ -100,6 +110,18 @@ void PositionPublisher::publishInThread(const uint32_t spin_rate)
     {
       ROS_ERROR("PositionPublisher::publishInThread error, %s", e.what());
     }
+
+#if VISUALIZE
+    for(uint32_t agent_it = 0; agent_it < msg_out.vehicles.size(); agent_it++)
+    {
+      nav_msgs::Odometry vis_msg;
+
+      vis_msg.header = msg_out.header;
+      vis_msg.pose.pose = msg_out.vehicles.at(agent_it).pose.pose;
+
+      visualize_pub.publish(vis_msg);
+    }
+#endif
 
     this->m_pub.publish(msg_out);
     loop_rate.sleep();

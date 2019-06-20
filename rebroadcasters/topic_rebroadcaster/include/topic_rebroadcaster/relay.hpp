@@ -33,6 +33,14 @@ public:
   Relay(const Relay&) = delete;
   /**
    * @Constructor
+   *
+   * @brief
+   * After initialization an internal thread handles relaying messages automatically.
+   * @input_topic: ROS topic this object will pull messages from
+   * @output_topic: ROS topic this object will push messages into
+   * @sub_queue_length: This object's ROS Subscriber callback queue size
+   * @pub_queue_length: This object's ROS Publisher queue size
+   * @spin_rate: The frequency in hertz that messages will be relayed
    **/
   Relay(const std::string& input_topic,
         const std::string& output_topic,

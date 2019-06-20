@@ -37,7 +37,7 @@ TEST(Get, full)
 {
   Relay test("topic_in", "topic_out");
 
-  EXPECT_EQ("topic_in", test.getInputTopic());
+  EXPECT_EQ("topic_in",  test.getInputTopic());
   EXPECT_EQ("topic_out", test.getOutputTopic());
 }
 
@@ -70,7 +70,6 @@ int main(int argc, char** argv)
   testing::InitGoogleTest(&argc, argv);
   ros::init(argc, argv, "test_relay_node");
   ros::NodeHandle m_nh;
-
 
   return RUN_ALL_TESTS();
 }

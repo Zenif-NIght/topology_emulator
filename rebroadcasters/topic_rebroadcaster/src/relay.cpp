@@ -26,10 +26,7 @@ Relay::Relay(const std::string& input_topic,
              const uint32_t     spin_rate)
  : m_input_topic(input_topic),
    m_output_topic(output_topic),
-   c_nh(),
-   m_pub(),
    m_sub(c_nh.subscribe(this->m_input_topic, sub_queue_length, &Relay::subCallback, this)),
-   m_callback_queue(),
    m_pub_queue_length(pub_queue_length),
    pub_is_advertised(false),
    m_thread(&Relay::runRelay, std::ref(*this), spin_rate)
@@ -39,6 +36,7 @@ Relay::Relay(const std::string& input_topic,
 
 Relay::~Relay()
 {
+  // Lets thread know it should shutdown
   this->m_callback_queue.disable();
   this->m_callback_queue.clear();
   this->m_thread.join();
@@ -73,14 +71,15 @@ void Relay::subCallback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_
 {
   const boost::shared_ptr<const topic_tools::ShapeShifter> msg(msg_in.getConstMessage());
 
+  // If publisher is uninitialized 
   if(!this->pub_is_advertised)
   {
     this->pub_is_advertised = true;
     this->m_pub = msg->advertise(this->c_nh, this->getOutputTopic(), this->m_pub_queue_length);
   }
 
+  // Waits for publisher to be connected
   ros::Time timer = ros::Time::now();
-
   while((0 == this->m_pub.getNumSubscribers()) && (ros::Duration(1) > (ros::Time::now() - timer)));
 
   this->m_pub.publish(msg);
