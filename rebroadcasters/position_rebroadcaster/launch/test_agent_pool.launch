@@ -1,0 +1,6 @@
+<!-- test_agent_pool.launch -->
+
+<launch>
+  <node name="agent_pool_test" type="agent_pool_test" pkg="position_rebroadcaster" output="screen" launch-prefix="valgrind" />
+</launch>
+

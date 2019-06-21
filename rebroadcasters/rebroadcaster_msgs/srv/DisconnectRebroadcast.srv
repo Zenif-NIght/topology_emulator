@@ -1,0 +1,12 @@
+##
+# @File: DisconnectRebroadcast.srv
+#
+# @brief
+# Tells the rebroadcasting server to stop publishing on the given topic
+##
+
+## Receivers ROS topic
+string topic
+
+---
+

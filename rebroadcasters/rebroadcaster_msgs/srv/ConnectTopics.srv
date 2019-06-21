@@ -1,0 +1,15 @@
+##
+# @File: ConnectTopics.srv
+#
+# @brief
+# Tells the topic server to relay topic messages
+##
+
+## The topic the messages are coming from
+string topic_in
+
+## The topic the messages are to be published on
+string topic_out
+
+---
+
