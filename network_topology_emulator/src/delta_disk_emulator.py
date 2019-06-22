@@ -71,5 +71,4 @@ class DeltaDiskEmulator(NetworkEmulator):
         return markers
 
 if __name__ == "__main__":
-    main = DeltaDiskEmulator(10, 5)
-    main.run()
+    DeltaDiskEmulator(rate=10, disk_radius=5).run()

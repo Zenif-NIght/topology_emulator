@@ -178,5 +178,4 @@ class NetworkEmulator(object):
             self.rate.sleep()
 
 if __name__ == '__main__':
-    main = NetworkEmulator(1)
-    main.run()
+    NetworkEmulator(rate=1).run()
