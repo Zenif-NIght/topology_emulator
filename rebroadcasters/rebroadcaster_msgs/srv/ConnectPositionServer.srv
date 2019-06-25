@@ -12,5 +12,8 @@ string topic
 ## Receivers frame id
 string frameId
 
+## Whether or not you want only bots in the neighborhood set
+bool filter
+
 ---
 
