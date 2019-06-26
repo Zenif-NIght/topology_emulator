@@ -24,6 +24,7 @@
 #include<list>
 #include<memory>
 #include<functional>
+#include<stdexcept>
 
 AgentPool::AgentPool(const uint32_t descovery_spin_rate,
                      const uint32_t callback_queue_legths,

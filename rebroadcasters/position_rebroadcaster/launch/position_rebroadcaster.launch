@@ -1,6 +1,9 @@
 <!-- position_rebroadcaster.launch -->
 
 <launch>
+  <arg name="network_topology_topic"
+       default="robot_neighbors"
+       doc="The topic that the network topology node is servicing" />
   <arg name="agent_discovery_spin_rate"
        default="1"
        doc="The frequency in hertz that new agents will be looked for and agents no longer in
@@ -28,6 +31,7 @@
         respawn="true"
         required="false"
         output="screen" >
+    <param name="network_topology_topic"      value="$(arg network_topology_topic)"      />
     <param name="agent_discovery_spin_rate"   value="$(arg agent_discovery_spin_rate)"   />
     <param name="agent_callback_queue_length" value="$(arg agent_callback_queue_length)" />
     <param name="agent_refresh_rate"          value="$(arg agent_refresh_rate)"          />

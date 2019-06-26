@@ -41,17 +41,19 @@ public:
   /**
    * @Constructor
    **/
-  OutputServer(const uint32_t agent_discovery_spin_rate,
-               const uint32_t agent_callback_queue_length,
-               const uint32_t agent_refresh_rate,
-               const uint32_t publishers_queue_length,
-               const uint32_t publishing_spin_rate);
+  OutputServer(const std::string& network_topology_topic,
+               const uint32_t     agent_discovery_spin_rate,
+               const uint32_t     agent_callback_queue_length,
+               const uint32_t     agent_refresh_rate,
+               const uint32_t     publishers_queue_length,
+               const uint32_t     publishing_spin_rate);
   /**
    * @Deconstructor
    **/
   ~OutputServer() = default;
 private:
   /* Information needed by the publishers */
+  const std::string m_network_topology_topic;
   const uint32_t m_publishers_queue_length;
   const uint32_t m_publishing_spin_rate;
   /* Protects the add and remove operations of the map */

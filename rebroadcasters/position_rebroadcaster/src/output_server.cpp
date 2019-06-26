@@ -25,12 +25,14 @@
 #include<string>
 #include<mutex>
 
-OutputServer::OutputServer(const uint32_t agent_discovery_spin_rate,
-                           const uint32_t agent_callback_queue_length,
-                           const uint32_t agent_refresh_rate,
-                           const uint32_t publishers_queue_length,
-                           const uint32_t publishing_spin_rate)
- : m_publishers_queue_length(publishers_queue_length),
+OutputServer::OutputServer(const std::string& network_topology_topic,
+                           const uint32_t     agent_discovery_spin_rate,
+                           const uint32_t     agent_callback_queue_length,
+                           const uint32_t     agent_refresh_rate,
+                           const uint32_t     publishers_queue_length,
+                           const uint32_t     publishing_spin_rate)
+ : m_network_topology_topic(network_topology_topic),
+   m_publishers_queue_length(publishers_queue_length),
    m_publishing_spin_rate(publishing_spin_rate),
    m_agent_pool(agent_discovery_spin_rate, agent_callback_queue_length, agent_refresh_rate),
    make_topic_srv(c_nh.advertiseService("position_rebroadcaster/connect",   &OutputServer::newSubscription, this)),
@@ -48,6 +50,8 @@ bool OutputServer::newSubscription(rebroadcaster_msgs::ConnectPositionServer::Re
                          req.topic,
                          req.frameId,
                          this->m_agent_pool,
+                         req.filter,
+                         this->m_network_topology_topic,
                          this->m_publishers_queue_length,
                          this->m_publishing_spin_rate));
   

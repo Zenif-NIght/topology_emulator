@@ -13,6 +13,10 @@
 
 /* mv_msgs Headers */
 #include<mv_msgs/VehiclePoses.h>
+#include<mv_msgs/VehiclePose.h>
+
+/* network_topology_emulator Headers */
+#include<network_topology_emulator/GetNeighbors.h>
 
 /* ROS Headers */
 #include<ros/ros.h>
@@ -26,22 +30,27 @@
 #include<string>
 #include<memory>
 #include<thread>
+#include<stdexcept>
+#include<functional>
 
 #define VISUALIZE false
 
 #if VISUALIZE
-  #include<nav_msgs/Odometry.h>
+#include<nav_msgs/Odometry.h>
 #endif
 
 PositionPublisher::PositionPublisher(const std::string&                      outputTopic,
                                      const std::string&                      outputFrameId,
                                      const std::reference_wrapper<AgentPool> agents,
+                                     const bool                              use_filter,
+                                     const std::string&                      filter_topic,
                                      const uint32_t                          publisher_queue_length,
                                      const uint32_t                          publish_spin_rate)
- : m_frameId(outputFrameId),
-   m_topic(outputTopic),
+ : m_use_filter(use_filter),
+   m_frameId(outputFrameId),
    m_agents(agents),
    m_pub(c_nh.advertise<mv_msgs::VehiclePoses>(outputTopic, publisher_queue_length)),
+   m_sub((use_filter) ? this->c_nh.serviceClient<network_topology_emulator::GetNeighbors>(filter_topic) : ros::ServiceClient()),
    run_thread(true),
    m_thread(&PositionPublisher::publishInThread, std::ref(*this), publish_spin_rate)
 {}
@@ -58,76 +67,101 @@ const std::string& PositionPublisher::getFrameId() const noexcept
   return this->m_frameId; 
 }
 
-const std::string& PositionPublisher::getTopic() const noexcept
-{
-  return this->m_topic;
-}
-
 void PositionPublisher::publishInThread(const uint32_t spin_rate)
 {
   ros::Rate loop_rate(spin_rate);
 
-#if VISUALIZE
+  #if VISUALIZE
   ros::Publisher visualize_pub = this->c_nh.advertise<nav_msgs::Odometry>("visualize_transform_odom", 50);
-#endif
+  #endif
 
   while(this->c_nh.ok() && this->run_thread)
   {
-    // Get data
-    std::shared_ptr<mv_msgs::VehiclePoses> raw_poses(this->m_agents.get().getAllPoses());
-
-    // Setup msg out
     mv_msgs::VehiclePoses msg_out;
-
-    msg_out.header.stamp = ros::Time::now();
-    msg_out.header.frame_id = this->getFrameId();
-
-    // Transform data
-    try
+   
+    if(this->getData(msg_out))
     {
-      for(uint32_t agent_it = 0; agent_it < raw_poses->vehicles.size(); agent_it++)
+      // Setup msg out
+      msg_out.header.stamp    = ros::Time::now();
+      msg_out.header.frame_id = this->getFrameId();
+
+      this->transformData(msg_out);
+
+      #if VISUALIZE
+      for(uint32_t agent_it = 0; agent_it < msg_out.vehicles.size(); agent_it++)
       {
-        const geometry_msgs::PoseStamped& pose_ref = raw_poses->vehicles.at(agent_it).pose;
+        nav_msgs::Odometry vis_msg;
 
-        if(this->m_tfListener.waitForTransform(this->m_frameId,
-                                               pose_ref.header.frame_id,
-                                               pose_ref.header.stamp,
-                                               ros::Duration(0.5)))
-        {
-          msg_out.vehicles.resize(msg_out.vehicles.size() + 1);
+        vis_msg.header = msg_out.header;
+        vis_msg.pose.pose = msg_out.vehicles.at(agent_it).pose.pose;
 
-          msg_out.vehicles.back().pose.header = pose_ref.header;
-
-          this->m_tfListener.transformPose(this->getFrameId(),
-                                           pose_ref,
-                                           msg_out.vehicles.back().pose);
-      
-          msg_out.vehicles.back().robot_id = raw_poses->vehicles.at(agent_it).robot_id;
-        }
+        visualize_pub.publish(vis_msg);
       }
+      #endif
+
+      this->m_pub.publish(msg_out);
     }
-    catch(const tf::TransformException& e)
-    {
-      ROS_ERROR("PositionPublisher::publishInThread error, %s", e.what());
-    }
-
-#if VISUALIZE
-    for(uint32_t agent_it = 0; agent_it < msg_out.vehicles.size(); agent_it++)
-    {
-      nav_msgs::Odometry vis_msg;
-
-      vis_msg.header = msg_out.header;
-      vis_msg.pose.pose = msg_out.vehicles.at(agent_it).pose.pose;
-
-      visualize_pub.publish(vis_msg);
-    }
-#endif
-
-    this->m_pub.publish(msg_out);
     loop_rate.sleep();
   }
 
   return;
+}
+
+bool PositionPublisher::getData(mv_msgs::VehiclePoses& poses) noexcept
+{
+  if(this->m_use_filter)
+  {
+    network_topology_emulator::GetNeighbors neighborhoodSet;
+
+    neighborhoodSet.request.robot_id = this->getFrameId();
+    if(!this->m_sub.call(neighborhoodSet))
+    {
+      return false;
+    }
+
+    for(auto neighbor_it =  neighborhoodSet.response.neighbors.neighbors.cbegin();
+             neighbor_it != neighborhoodSet.response.neighbors.neighbors.cend();
+             neighbor_it++)
+    {
+      try
+      {
+        poses.vehicles.push_back(this->m_agents.get().getPose(*neighbor_it)); 
+      }
+      catch(const std::runtime_error& e)
+      {}
+    }
+  }
+  else
+  {
+    poses = *this->m_agents.get().getAllPoses();
+  }
+
+  return true;
+}
+
+void PositionPublisher::transformData(mv_msgs::VehiclePoses& poses) const noexcept
+{
+  try
+  {
+    for(uint32_t agent_it = 0; agent_it < poses.vehicles.size(); agent_it++)
+    {
+      const geometry_msgs::PoseStamped pose_copy = poses.vehicles.at(agent_it).pose;
+
+      if(this->m_tfListener.waitForTransform(this->getFrameId(),
+                                             pose_copy.header.frame_id,
+                                             pose_copy.header.stamp,
+                                             ros::Duration(0.5)))
+      {
+        this->m_tfListener.transformPose(this->getFrameId(),
+                                         pose_copy,
+                                         poses.vehicles.at(agent_it).pose);
+      }
+    }
+  }
+  catch(const tf::TransformException& e)
+  {
+    ROS_ERROR("PositionPublisher::publishInThread error, %s", e.what());
+  }
 }
 
 /* position_publisher.cpp */

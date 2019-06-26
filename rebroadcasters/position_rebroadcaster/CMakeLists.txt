@@ -7,6 +7,7 @@ add_compile_options(-std=c++11 -g -O0)
 find_package(catkin REQUIRED
   COMPONENTS
     rebroadcaster_msgs
+    network_topology_emulator
     mv_msgs
     roscpp
     tf
@@ -23,6 +24,7 @@ find_package(GTest REQUIRED)
 catkin_package(
   CATKIN_DEPENDS
     rebroadcaster_msgs
+    network_topology_emulator
     mv_msgs
     roscpp
     tf
@@ -93,32 +95,8 @@ install(
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
 install(DIRECTORY
   launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-#catkin_add_gtest(agent_test test/test_agent.cpp src/agent.cpp)
-#if(TARGET agent_test)
-#  target_link_libraries(agent_test
-#    gtest
-#    gtest_main
-#    ${catkin_LIBRARIES}
-#  )
-#endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)

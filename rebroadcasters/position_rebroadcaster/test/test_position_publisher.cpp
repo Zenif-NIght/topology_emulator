@@ -24,14 +24,14 @@ TEST(Constructor, stack)
 {
   AgentPool a_pool(100, 5, 100);
 
-  PositionPublisher("TopicOut", "robot1/odom", a_pool, 5, 100);
+  PositionPublisher("TopicOut", "robot1/odom", a_pool, false, std::string(), 5, 100);
 }
 
 TEST(Constructor, heap)
 {
   AgentPool a_pool(100, 5, 100);
 
-  PositionPublisher* test = new PositionPublisher("TopicOut", "robot1/odom", a_pool, 5, 100);
+  PositionPublisher* test = new PositionPublisher("TopicOut", "robot1/odom", a_pool, false, std::string(), 5, 100);
 
   delete(test);
 }
@@ -40,17 +40,16 @@ TEST(Get, full)
 {
   AgentPool a_pool(100, 5, 100);
 
-  PositionPublisher test("TopicOut", "robot1/odom", a_pool, 5, 100);
+  PositionPublisher test("TopicOut", "robot1/odom", a_pool, false, std::string(), 5, 100);
 
   EXPECT_EQ("robot1/odom", test.getFrameId());
-  EXPECT_EQ("TopicOut", test.getTopic());
 }
 
 TEST(PublishPosition, full)
 {
   ros::NodeHandle nh;
   AgentPool a_pool(1, 5, 100);
-  PositionPublisher test("TopicOut", "robot1/odom", a_pool, 5, 30);
+  PositionPublisher test("TopicOut", "robot1/odom", a_pool, false, std::string(), 5, 30);
 
   ros::Subscriber sub = nh.subscribe("TopicOut", 1, callback);
 

@@ -42,6 +42,7 @@ int main(int argc, char** argv)
   rebroadcaster_msgs::ConnectPositionServer srv_obj;
   srv_obj.request.topic = "to_full_demo";
   srv_obj.request.frameId = "robot1/odom";
+  srv_obj.request.filter = false;
 
   if(!srv_client.call(srv_obj))
   {
@@ -52,8 +53,6 @@ int main(int argc, char** argv)
 
   ros::Rate loop_rate(0.2);
   ros::Time timer = ros::Time::now();
-
-//  std::cin.get();
 
   // Print messages
   while(m_nh.ok() && (ros::Duration(10) > (ros::Time::now() - timer)))

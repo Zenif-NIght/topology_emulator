@@ -13,6 +13,9 @@
 /* Local Headers */
 #include"position_rebroadcasters/agent_pool.hpp"
 
+/* mv_msgs Headers */
+#include<mv_msgs/VehiclePoses.h>
+
 /* ROS Headers */
 #include<ros/ros.h>
 #include<tf/tf.h>
@@ -41,6 +44,8 @@ public:
   PositionPublisher(const std::string&                      outputTopic,
                     const std::string&                      outputFrameId,
                     const std::reference_wrapper<AgentPool> agents,
+                    const bool                              use_filter,
+                    const std::string&                      filter_topic,
                     const uint32_t                          publisher_queue_length = 5,
                     const uint32_t                          publish_spin_rate = 50);
   /**
@@ -54,19 +59,21 @@ public:
    * Returns the value asked for.
    **/
   const std::string& getFrameId() const noexcept;
-  const std::string& getTopic()   const noexcept;
 private:
+  /* Whether or not to only publish the neighborhood set */
+  const bool m_use_filter;
   /* The frame that this class publishes data in */
   const std::string m_frameId;
-  /* The topic that this class publishes on */
-  const std::string m_topic;
   /* Used to transform frames */
   tf::TransformListener m_tfListener;
   /* Holds the position data */
   const std::reference_wrapper<AgentPool> m_agents;
   /* ROS stuff */
   ros::NodeHandle c_nh;
+  /* For publishing poses */
   ros::Publisher m_pub;
+  /* For getting the neiborhood set */
+  ros::ServiceClient m_sub;
   /* Tells the thread when to shutdown */
   bool run_thread;
   /* The thread that will do the publishing */
@@ -79,6 +86,22 @@ private:
    * at the passed in speed.
    **/
   void publishInThread(const uint32_t spin_rate);
+  /**
+   * @getData
+   *
+   * @brief
+   * Fills the passed in object with the vehicle poses that need to be
+   * processed.
+   * @return: True an success and false on failure
+   **/
+  bool getData(mv_msgs::VehiclePoses& poses) noexcept;
+  /**
+   * @tranformData
+   *
+   * @brief
+   * Transforms all of the passed in messages' poses to this objects frame.
+   **/
+  void transformData(mv_msgs::VehiclePoses& poses) const noexcept;
 };
 
 #endif
