@@ -2,7 +2,9 @@
 # @File: DisconnectRebroadcast.srv
 #
 # @brief
-# Tells the rebroadcasting server to stop publishing on the given topic
+# Tells a rebroadcasting server to stop publishing on the given topic
+# @Note: The topic rebroadcaster needs both the topic_out and topic_in,
+#        however the position rebroadcaster only needs the topic_out information.
 ##
 
 ## Receivers ROS topic

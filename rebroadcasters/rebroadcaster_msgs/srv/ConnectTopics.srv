@@ -14,7 +14,7 @@ string topic_out
 ## The rate that the topics will updated.
 uint32 spin_rate
 
-## The lenght of both the publishing and subscribing queues
+## The length of both the publishing and subscribing queues
 uint32 queue_length
 
 ---

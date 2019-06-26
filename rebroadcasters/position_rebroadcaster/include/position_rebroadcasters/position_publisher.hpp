@@ -23,7 +23,6 @@
 
 /* C++ Headers */
 #include<string>
-#include<memory>
 #include<thread>
 #include<functional>
 
@@ -40,9 +39,23 @@ public:
   PositionPublisher(const PositionPublisher&) = delete;
   /**
    * @Constructor
+   *
+   * @brief
+   * At the end of construction this object will automatically retrieve needed
+   * pose data, transform it to the correct frame id, and publish it at the
+   * given frequency.
+   * @output_topic: The topic this object will publish on
+   * @output_frameId: The frame id that all the poses will be in when they are published
+   * @agents: A reference to a shared AgentPool
+   * @use_filter: Whether or not to only publish this frameId's neighborhood set
+   * @filter_topic: The topic that this object will use to make service calls to the
+   *                network_topology_emulator node to get neighborhood sets
+   * @publisher_queue_length: The size of this object ROS queue length
+   * @publish_spin_rate: The frequency in hertz that this object will publish
+   *                     mv_msgs/VehiclePoses messages
    **/
-  PositionPublisher(const std::string&                      outputTopic,
-                    const std::string&                      outputFrameId,
+  PositionPublisher(const std::string&                      output_topic,
+                    const std::string&                      output_frameId,
                     const std::reference_wrapper<AgentPool> agents,
                     const bool                              use_filter,
                     const std::string&                      filter_topic,
@@ -56,7 +69,7 @@ public:
    * @get
    *
    * @brief
-   * Returns the value asked for.
+   * Returns this objects frame id.
    **/
   const std::string& getFrameId() const noexcept;
 private:
@@ -72,7 +85,7 @@ private:
   ros::NodeHandle c_nh;
   /* For publishing poses */
   ros::Publisher m_pub;
-  /* For getting the neiborhood set */
+  /* For getting the neighborhood set */
   ros::ServiceClient m_sub;
   /* Tells the thread when to shutdown */
   bool run_thread;
@@ -82,8 +95,9 @@ private:
    * @publishInThread
    *
    * @brief
-   * When ran in a thread object this function will translate and publish msgs
-   * at the passed in speed.
+   * When ran in a thread object this function will translate and publish msgs.
+   * @spin_rate: The frequency in hertz that this function will publish
+   *             messages
    **/
   void publishInThread(const uint32_t spin_rate);
   /**
@@ -92,6 +106,8 @@ private:
    * @brief
    * Fills the passed in object with the vehicle poses that need to be
    * processed.
+   * @poses: An empty object when it's passed in and is filled with pose
+   *         data on success
    * @return: True an success and false on failure
    **/
   bool getData(mv_msgs::VehiclePoses& poses) noexcept;
@@ -100,6 +116,7 @@ private:
    *
    * @brief
    * Transforms all of the passed in messages' poses to this objects frame.
+   * @poses: An object holding pose data
    **/
   void transformData(mv_msgs::VehiclePoses& poses) const noexcept;
 };

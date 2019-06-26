@@ -21,13 +21,13 @@ nav_msgs::Odometry makeOdom()
 {
   nav_msgs::Odometry obj;
 
-  obj.header.seq = 42;
-  obj.header.stamp = ros::Time::now();
-  obj.header.frame_id = "headerFrameId";
-  obj.child_frame_id = "child_frame_id";
-  obj.pose.pose.position.x = 1;
-  obj.pose.pose.position.y = 2;
-  obj.pose.pose.position.z = 3;
+  obj.header.seq              = 42;
+  obj.header.stamp            = ros::Time::now();
+  obj.header.frame_id         = "headerFrameId";
+  obj.child_frame_id          = "child_frame_id";
+  obj.pose.pose.position.x    = 1;
+  obj.pose.pose.position.y    = 2;
+  obj.pose.pose.position.z    = 3;
   obj.pose.pose.orientation.x = 4;
   obj.pose.pose.orientation.y = 5;
   obj.pose.pose.orientation.z = 6;
@@ -99,7 +99,6 @@ int main(int argc, char** argv)
   testing::InitGoogleTest(&argc, argv);
   ros::init(argc, argv, "test_agent_node");
   ros::NodeHandle m_nh;
-
 
   return RUN_ALL_TESTS();
 }

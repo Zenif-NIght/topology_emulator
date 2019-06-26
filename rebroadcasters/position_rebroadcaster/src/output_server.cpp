@@ -24,6 +24,7 @@
 #include<map>
 #include<string>
 #include<mutex>
+#include<tuple>
 
 OutputServer::OutputServer(const std::string& network_topology_topic,
                            const uint32_t     agent_discovery_spin_rate,
@@ -67,7 +68,6 @@ bool OutputServer::endSubscription(rebroadcaster_msgs::DisconnectRebroadcast::Re
 
   return true;
 }
-
 
 /* output_server.cpp */
 

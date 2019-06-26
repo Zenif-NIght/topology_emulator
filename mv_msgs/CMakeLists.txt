@@ -13,7 +13,6 @@ find_package(catkin REQUIRED
 ## Declare ROS messages, services and actions ##
 ################################################
 
-## Generate messages in the 'msg' folder
 add_message_files(
   FILES
     Neighbors.msg
@@ -21,7 +20,6 @@ add_message_files(
     VehiclePoses.msg
 )
 
-## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
     std_msgs

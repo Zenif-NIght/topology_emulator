@@ -7,7 +7,7 @@
   <arg name="agent_discovery_spin_rate"
        default="1"
        doc="The frequency in hertz that new agents will be looked for and agents no longer in
-         use will be removed." />
+            use will be removed." />
   <arg name="agent_callback_queue_length"
        default="5"
        doc="How long the callback queues for receiving agent positions will be." />
@@ -23,7 +23,7 @@
   <arg name="server_response_speed"
        default="1"
        doc="The frequency in hertz that the server checks for incoming topic start and stop
-         requests." />
+            requests." />
 
   <node name="position_rebroadcaster_node"
         pkg="position_rebroadcaster"

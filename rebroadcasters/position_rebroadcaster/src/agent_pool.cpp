@@ -26,13 +26,13 @@
 #include<functional>
 #include<stdexcept>
 
-AgentPool::AgentPool(const uint32_t descovery_spin_rate,
-                     const uint32_t callback_queue_legths,
+AgentPool::AgentPool(const uint32_t discovery_spin_rate,
+                     const uint32_t callback_queue_lengths,
                      const uint32_t agents_spin_rate)
- : m_callback_queue_legths(callback_queue_legths),
+ : m_callback_queue_legths(callback_queue_lengths),
    m_agent_spin_rate(agents_spin_rate),
    m_thread_run(true),
-   m_thread(&AgentPool::updateThreadFunction, std::ref(*this), descovery_spin_rate)
+   m_thread(&AgentPool::updateThreadFunction, std::ref(*this), discovery_spin_rate)
 {}
 
 AgentPool::~AgentPool()
@@ -60,14 +60,16 @@ mv_msgs::VehiclePose AgentPool::getPose(const std::string& agent_name)
 
 std::shared_ptr<mv_msgs::VehiclePoses> AgentPool::getAllPoses()
 {
-  std::unique_lock<std::mutex> func_lock(this->m_mux);
   std::shared_ptr<mv_msgs::VehiclePoses> out_msg(new mv_msgs::VehiclePoses());
+  std::unique_lock<std::mutex> func_lock(this->m_mux);
 
   for(auto agent_it = this->m_agents.cbegin(); agent_it != this->m_agents.cend(); agent_it++)
   {
     (*agent_it)->getLock().lock();
+    
     const mv_msgs::VehiclePose& pose_ref = (*agent_it)->getPose();
 
+    // If agent is fully initialized
     if(std::string() != pose_ref.pose.header.frame_id)
     {
       out_msg->vehicles.push_back(pose_ref);
@@ -99,11 +101,13 @@ void AgentPool::updateThreadFunction(const uint32_t spin_rate)
 
   while(ros::ok() && this->m_thread_run)
   {
+    // Get all open ROS topic
     ros::master::V_TopicInfo master_topics;
     ros::master::getTopics(master_topics);
 
     this->m_mux.lock();
 
+    // Get all of the agent names this object currently has
     std::shared_ptr<std::list<std::reference_wrapper<const std::string>>> agents_list(this->currentAgents());
 
     // For all ROS topics

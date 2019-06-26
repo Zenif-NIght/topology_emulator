@@ -4,7 +4,7 @@
  * @Author: James Swedeen
  *
  * @brief
- * A class for describing an agents Pose in a multi vehicle framework.
+ * A class for holding an agents Pose in a multi vehicle framework.
  **/
 
 #ifndef AGENT_HPP
@@ -37,10 +37,20 @@ public:
   Agent(const Agent&) = delete;
   /**
    * @Constructor
+   *
+   * @brief
+   * After constructor finishes this object will automatically update it's own
+   * pose data in it's own thread.
+   * @agent_name: This agents unique identifier
+   * @odom_topic: The topic that the agent is publishing it's nav_msgs/Odometry
+   *              messages
+   * @callback_queue_length: The size of the callback queue that this object will
+   *                         receive pose messages on
+   * @spinRate: The rate in hertz that this object will update its pose data
    **/
   Agent(const std::string& agent_name,
         const std::string& odom_topic,
-        const uint32_t callback_queue_legth = 5,
+        const uint32_t callback_queue_length = 5,
         const uint32_t spinRate = 50);
   /**
    * @Deconstructor
@@ -50,7 +60,8 @@ public:
    * @getPose
    *
    * @brief
-   * Returns the objects pose data.
+   * Returns the objects pose data. Needs to be protected
+   * with the getLock function to be thread safe.
    **/
   const mv_msgs::VehiclePose& getPose() noexcept;
   /**
@@ -94,6 +105,7 @@ private:
    *
    * @brief
    * Runs odomCallbacks as they come.
+   * @spin_rate: Refresh rate in hertz
    **/
   void threadFunction(const uint32_t spin_rate);
   /**
@@ -101,6 +113,7 @@ private:
    *
    * @brief
    * Gets information from odom.
+   * @msg_in: Pose message from robot
    **/
   void odomCallback(const nav_msgs::Odometry& msg_in);
 };

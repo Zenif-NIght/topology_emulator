@@ -40,9 +40,9 @@ int main(int argc, char** argv)
 
   // Open topic
   rebroadcaster_msgs::ConnectPositionServer srv_obj;
-  srv_obj.request.topic = "to_full_demo";
+  srv_obj.request.topic   = "to_full_demo";
   srv_obj.request.frameId = "robot1/odom";
-  srv_obj.request.filter = false;
+  srv_obj.request.filter  = false;
 
   if(!srv_client.call(srv_obj))
   {

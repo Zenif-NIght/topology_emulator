@@ -93,11 +93,7 @@ TEST(getAllPoses, full)
 
   obj.header.frame_id = "testing";
   odom_pub.publish(obj);
-
-  obj.header.frame_id = "testing";
   odom_pub2.publish(obj);
-
-  obj.header.frame_id = "testing";
   odom_pub3.publish(obj);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -106,7 +102,7 @@ TEST(getAllPoses, full)
   EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(1).pose.header.frame_id);
   EXPECT_EQ("testing", test.getAllPoses()->vehicles.at(2).pose.header.frame_id);
 
-  odom_pub.shutdown();
+  odom_pub. shutdown();
   odom_pub2.shutdown();
   odom_pub3.shutdown();
 
@@ -121,7 +117,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "test_agent_pool_node");
   ros::NodeHandle m_nh;
 
-  ros::Publisher odom_pub = m_nh.advertise<nav_msgs::Odometry>("robot1/odom", 5);
+  ros::Publisher odom_pub     = m_nh.advertise<nav_msgs::Odometry>("robot1/odom", 5);
   ros::Publisher not_odom_pub = m_nh.advertise<nav_msgs::Odometry>("robot1/notOdom", 5);
 
   return RUN_ALL_TESTS();

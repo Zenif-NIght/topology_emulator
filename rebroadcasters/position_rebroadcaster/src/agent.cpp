@@ -24,27 +24,26 @@
 
 Agent::Agent(const std::string& agent_name,
              const std::string& odom_topic,
-             const uint32_t callback_queue_legth,
-             const uint32_t spin_rate)
+             const uint32_t     callback_queue_length,
+             const uint32_t     spin_rate)
  : m_name(agent_name),
    m_thread(&Agent::threadFunction, std::ref(*this), spin_rate)
 {
   std::unique_lock<std::mutex>(this->getLock());
   this->m_pose.robot_id = this->m_name;
   this->c_nh.setCallbackQueue(&this->m_callback_queue);
-  this->m_odom_sub = c_nh.subscribe(odom_topic, callback_queue_legth, &Agent::odomCallback, this);
+  this->m_odom_sub = c_nh.subscribe(odom_topic, callback_queue_length, &Agent::odomCallback, this);
 }
 
 Agent::~Agent()
 {
-  this->getLock().lock();
-
-  this->m_callback_queue.clear();
-  this->m_callback_queue.disable();
+  // Tell thread to end
+  {
+    std::unique_lock<std::mutex>(this->getLock());
+    this->m_callback_queue.clear();
+    this->m_callback_queue.disable();
+  }
   this->m_odom_sub.shutdown();
-
-  this->getLock().unlock();
-
   this->m_thread.join();
 }
 

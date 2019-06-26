@@ -6,13 +6,14 @@
 # frame ID.
 ##
 
-## Receivers ROS topic
+## Receiver's ROS topic
 string topic
 
-## Receivers frame id
+## Receiver's frame id
 string frameId
 
-## Whether or not you want only bots in the neighborhood set
+## Whether or not you want the pose data from only bots in the neighborhood
+## set of the receiver
 bool filter
 
 ---

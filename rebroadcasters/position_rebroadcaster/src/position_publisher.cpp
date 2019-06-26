@@ -33,23 +33,24 @@
 #include<stdexcept>
 #include<functional>
 
+/* Set to true if you want to see the output of this node in rvis */
 #define VISUALIZE false
 
 #if VISUALIZE
 #include<nav_msgs/Odometry.h>
 #endif
 
-PositionPublisher::PositionPublisher(const std::string&                      outputTopic,
-                                     const std::string&                      outputFrameId,
+PositionPublisher::PositionPublisher(const std::string&                      output_topic,
+                                     const std::string&                      output_frameId,
                                      const std::reference_wrapper<AgentPool> agents,
                                      const bool                              use_filter,
                                      const std::string&                      filter_topic,
                                      const uint32_t                          publisher_queue_length,
                                      const uint32_t                          publish_spin_rate)
  : m_use_filter(use_filter),
-   m_frameId(outputFrameId),
+   m_frameId(output_frameId),
    m_agents(agents),
-   m_pub(c_nh.advertise<mv_msgs::VehiclePoses>(outputTopic, publisher_queue_length)),
+   m_pub(c_nh.advertise<mv_msgs::VehiclePoses>(output_topic, publisher_queue_length)),
    m_sub((use_filter) ? this->c_nh.serviceClient<network_topology_emulator::GetNeighbors>(filter_topic) : ros::ServiceClient()),
    run_thread(true),
    m_thread(&PositionPublisher::publishInThread, std::ref(*this), publish_spin_rate)
@@ -78,7 +79,8 @@ void PositionPublisher::publishInThread(const uint32_t spin_rate)
   while(this->c_nh.ok() && this->run_thread)
   {
     mv_msgs::VehiclePoses msg_out;
-   
+  
+    // Will fail only if this node can't connect to the network_topology_emulator node
     if(this->getData(msg_out))
     {
       // Setup msg out
@@ -92,7 +94,7 @@ void PositionPublisher::publishInThread(const uint32_t spin_rate)
       {
         nav_msgs::Odometry vis_msg;
 
-        vis_msg.header = msg_out.header;
+        vis_msg.header    = msg_out.header;
         vis_msg.pose.pose = msg_out.vehicles.at(agent_it).pose.pose;
 
         visualize_pub.publish(vis_msg);
@@ -113,6 +115,7 @@ bool PositionPublisher::getData(mv_msgs::VehiclePoses& poses) noexcept
   {
     network_topology_emulator::GetNeighbors neighborhoodSet;
 
+    // Get neighborhood set
     neighborhoodSet.request.robot_id = this->getFrameId();
     if(!this->m_sub.call(neighborhoodSet))
     {
@@ -128,7 +131,7 @@ bool PositionPublisher::getData(mv_msgs::VehiclePoses& poses) noexcept
         poses.vehicles.push_back(this->m_agents.get().getPose(*neighbor_it)); 
       }
       catch(const std::runtime_error& e)
-      {}
+      {} // If Agent isn't present in AgentPool
     }
   }
   else
@@ -147,6 +150,7 @@ void PositionPublisher::transformData(mv_msgs::VehiclePoses& poses) const noexce
     {
       const geometry_msgs::PoseStamped pose_copy = poses.vehicles.at(agent_it).pose;
 
+      // If transform is possible
       if(this->m_tfListener.waitForTransform(this->getFrameId(),
                                              pose_copy.header.frame_id,
                                              pose_copy.header.stamp,
@@ -155,6 +159,12 @@ void PositionPublisher::transformData(mv_msgs::VehiclePoses& poses) const noexce
         this->m_tfListener.transformPose(this->getFrameId(),
                                          pose_copy,
                                          poses.vehicles.at(agent_it).pose);
+
+        poses.vehicles.at(agent_it).pose.header.frame_id = this->getFrameId();
+      }
+      else
+      {
+        poses.vehicles.erase(poses.vehicles.begin() + agent_it);
       }
     }
   }
