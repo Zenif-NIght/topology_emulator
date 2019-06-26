@@ -1,10 +1,22 @@
 #!/usr/bin/env python
-from network_emulator import NetworkEmulator
-from visualization_msgs.msg import Marker
-import rospy
+"""Module containing the DeltaDiskEmulator node class"""
 import math
+import rospy
+from visualization_msgs.msg import Marker
+from network_emulator import NetworkEmulator
+
+
+def distance(position1, position2):
+    """Calculate the distance between the two positions"""
+    diffx = position1.x - position2.x
+    diffy = position1.y - position2.y
+    diffz = position1.z - position2.z
+
+    return math.sqrt(diffx**2 + diffy**2 + diffz**2)
+
 
 class DeltaDiskEmulator(NetworkEmulator):
+    """Class that emulates a delta disk network and vizualizes the disks"""
     def __init__(self, rate=10, disk_radius=5):
         """ Initialize with a disk radius input (default is 1)
 
@@ -12,14 +24,6 @@ class DeltaDiskEmulator(NetworkEmulator):
         """
         super(DeltaDiskEmulator, self).__init__(rate)
         self.disk_radius = disk_radius
-
-    def distance(self, position1, position2):
-        """Calculate the distance between the two positions"""
-        diffx = position1.x - position2.x
-        diffy = position1.y - position2.y
-        diffz = position1.z - position2.z
-
-        return math.sqrt(diffx**2 + diffy**2 + diffz**2)
 
     def build_network(self):
         """Build the network with a delta disk topology
@@ -32,10 +36,10 @@ class DeltaDiskEmulator(NetworkEmulator):
             neighbors = []
             for other_robot, other_robot_pose in self.robots.items():
                 # calculate distance between robot and other_robot
-                distance = self.distance(robot_pose.pose.position, 
-                                 other_robot_pose.pose.position)
+                dist = distance(robot_pose.pose.position,
+                                other_robot_pose.pose.position)
                 # if its not me and close enough I can see it
-                if robot != other_robot and distance <= self.disk_radius:
+                if robot != other_robot and dist <= self.disk_radius:
                     neighbors.append(other_robot)
             self.network[robot] = neighbors
 
@@ -59,7 +63,7 @@ class DeltaDiskEmulator(NetworkEmulator):
         marker.color.b = 0.5
         marker.lifetime = rospy.Duration.from_sec(1/self.rate_hz)
 
-        for robot in self.robots.keys():
+        for robot in self.robots:
             marker.points.append(self.robots[robot].pose.position)
 
         markers.markers.append(marker)
@@ -67,5 +71,4 @@ class DeltaDiskEmulator(NetworkEmulator):
         return markers
 
 if __name__ == "__main__":
-    emulator = DeltaDiskEmulator(10, 5)
-    emulator.run()
+    DeltaDiskEmulator(rate=10, disk_radius=5).run()
