@@ -53,7 +53,7 @@ PositionPublisher::PositionPublisher(const std::string&                      out
    m_pub(c_nh.advertise<mv_msgs::VehiclePoses>(output_topic, publisher_queue_length)),
    m_sub((use_filter) ? this->c_nh.serviceClient<network_topology_emulator::GetNeighbors>(filter_topic) : ros::ServiceClient()),
    run_thread(true),
-   m_thread(&PositionPublisher::publishInThread, std::ref(*this), publish_spin_rate)
+   m_thread(&PositionPublisher::publishInThread, this, publish_spin_rate)
 {}
 
 PositionPublisher::~PositionPublisher()
@@ -65,7 +65,7 @@ PositionPublisher::~PositionPublisher()
 
 const std::string& PositionPublisher::getFrameId() const noexcept
 {
-  return this->m_frameId; 
+  return this->m_frameId;
 }
 
 void PositionPublisher::publishInThread(const uint32_t spin_rate)
@@ -79,7 +79,7 @@ void PositionPublisher::publishInThread(const uint32_t spin_rate)
   while(this->c_nh.ok() && this->run_thread)
   {
     mv_msgs::VehiclePoses msg_out;
-  
+
     // Will fail only if this node can't connect to the network_topology_emulator node
     if(this->getData(msg_out))
     {
@@ -128,7 +128,7 @@ bool PositionPublisher::getData(mv_msgs::VehiclePoses& poses) noexcept
     {
       try
       {
-        poses.vehicles.push_back(this->m_agents.get().getPose(*neighbor_it)); 
+        poses.vehicles.push_back(this->m_agents.get().getPose(*neighbor_it));
       }
       catch(const std::runtime_error& e)
       {} // If Agent isn't present in AgentPool

@@ -32,7 +32,7 @@ AgentPool::AgentPool(const uint32_t discovery_spin_rate,
  : m_callback_queue_legths(callback_queue_lengths),
    m_agent_spin_rate(agents_spin_rate),
    m_thread_run(true),
-   m_thread(&AgentPool::updateThreadFunction, std::ref(*this), discovery_spin_rate)
+   m_thread(&AgentPool::updateThreadFunction, this, discovery_spin_rate)
 {}
 
 AgentPool::~AgentPool()
@@ -45,7 +45,7 @@ AgentPool::~AgentPool()
 mv_msgs::VehiclePose AgentPool::getPose(const std::string& agent_name)
 {
   std::unique_lock<std::mutex> func_lock(this->m_mux);
-  
+
   for(auto agent_it = this->m_agents.cbegin(); agent_it != this->m_agents.cend(); agent_it++)
   {
     if(agent_name == (*agent_it)->getName())
@@ -66,7 +66,7 @@ std::shared_ptr<mv_msgs::VehiclePoses> AgentPool::getAllPoses()
   for(auto agent_it = this->m_agents.cbegin(); agent_it != this->m_agents.cend(); agent_it++)
   {
     (*agent_it)->getLock().lock();
-    
+
     const mv_msgs::VehiclePose& pose_ref = (*agent_it)->getPose();
 
     // If agent is fully initialized
@@ -83,7 +83,7 @@ std::shared_ptr<mv_msgs::VehiclePoses> AgentPool::getAllPoses()
 std::shared_ptr<Agent> AgentPool::getAgent(const std::string& agent_name)
 {
   std::unique_lock<std::mutex> func_lock(this->m_mux);
-  
+
   for(auto agent_it = this->m_agents.cbegin(); agent_it != this->m_agents.cend(); agent_it++)
   {
     if(agent_name == (*agent_it)->getName())
@@ -126,10 +126,10 @@ void AgentPool::updateThreadFunction(const uint32_t spin_rate)
         }
       }
     }
-    
+
     // If this object has any agents that don't have odom topics anymore
     if(!agents_list->empty())
-    {  
+    {
       // Remove those agents
       this->m_agents.remove_if([&agents_list](const std::shared_ptr<Agent> agent_it) -> bool
         {
@@ -172,9 +172,9 @@ bool AgentPool::getNamespace(std::string& the_namespace, const std::string& topi
   {
     return false;
   }
-  
+
   the_namespace = topic.substr(1, topic.size() - slash_pos + 1);
-  return true; 
+  return true;
 }
 
 bool AgentPool::checkNamespace(const std::string& the_namespace, std::list<std::reference_wrapper<const std::string>>& agents_list)

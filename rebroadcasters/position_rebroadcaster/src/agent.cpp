@@ -27,7 +27,7 @@ Agent::Agent(const std::string& agent_name,
              const uint32_t     callback_queue_length,
              const uint32_t     spin_rate)
  : m_name(agent_name),
-   m_thread(&Agent::threadFunction, std::ref(*this), spin_rate)
+   m_thread(&Agent::threadFunction, this, spin_rate)
 {
   std::unique_lock<std::mutex>(this->getLock());
   this->m_pose.robot_id = this->m_name;

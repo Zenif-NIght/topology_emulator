@@ -37,7 +37,7 @@ OutputServer::OutputServer(const std::string& network_topology_topic,
    m_publishing_spin_rate(publishing_spin_rate),
    m_agent_pool(agent_discovery_spin_rate, agent_callback_queue_length, agent_refresh_rate),
    make_topic_srv(c_nh.advertiseService("position_rebroadcaster/connect",   &OutputServer::newSubscription, this)),
-   end_topic_srv (c_nh.advertiseService("position_rebroadcaster/disconnect",&OutputServer::endSubscription, this)) 
+   end_topic_srv (c_nh.advertiseService("position_rebroadcaster/disconnect",&OutputServer::endSubscription, this))
 {}
 
 bool OutputServer::newSubscription(rebroadcaster_msgs::ConnectPositionServer::Request  &req,
@@ -55,7 +55,7 @@ bool OutputServer::newSubscription(rebroadcaster_msgs::ConnectPositionServer::Re
                          this->m_network_topology_topic,
                          this->m_publishers_queue_length,
                          this->m_publishing_spin_rate));
-  
+
   return true;
 }
 
