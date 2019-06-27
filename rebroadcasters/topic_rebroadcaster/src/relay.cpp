@@ -29,9 +29,9 @@ Relay::Relay(const std::string& input_topic,
    m_sub(c_nh.subscribe(this->m_input_topic, sub_queue_length, &Relay::subCallback, this)),
    m_pub_queue_length(pub_queue_length),
    pub_is_advertised(false),
-   m_thread(&Relay::runRelay, std::ref(*this), spin_rate)
+   m_thread(&Relay::runRelay, this, spin_rate)
 {
-  this->c_nh.setCallbackQueue(&this->m_callback_queue); 
+  this->c_nh.setCallbackQueue(&this->m_callback_queue);
 }
 
 Relay::~Relay()
@@ -46,7 +46,7 @@ Relay::~Relay()
 
 const std::string& Relay::getInputTopic() const noexcept
 {
-  return this->m_input_topic; 
+  return this->m_input_topic;
 }
 
 const std::string& Relay::getOutputTopic() const noexcept
@@ -71,7 +71,7 @@ void Relay::subCallback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_
 {
   const boost::shared_ptr<const topic_tools::ShapeShifter> msg(msg_in.getConstMessage());
 
-  // If publisher is uninitialized 
+  // If publisher is uninitialized
   if(!this->pub_is_advertised)
   {
     this->pub_is_advertised = true;
