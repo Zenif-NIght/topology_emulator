@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "rebroadcaster_demo_node");
   ros::NodeHandle m_nh;
-  
+
   ROS_INFO("Start of demo");
 
   ros::ServiceClient srv_client = m_nh.serviceClient<rebroadcaster_msgs::ConnectPositionServer>("position_rebroadcaster/connect");
@@ -43,6 +43,8 @@ int main(int argc, char** argv)
   srv_obj.request.topic   = "to_full_demo";
   srv_obj.request.frameId = "robot1/odom";
   srv_obj.request.filter  = false;
+
+  ros::service::waitForService("position_rebroadcaster/connect");
 
   if(!srv_client.call(srv_obj))
   {
