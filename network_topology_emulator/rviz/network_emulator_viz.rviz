@@ -53,7 +53,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /network_graph
+      Marker Topic: /topology_graph
       Name: MarkerArray
       Namespaces:
         network_graph: true
@@ -63,7 +63,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: my_frame
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
