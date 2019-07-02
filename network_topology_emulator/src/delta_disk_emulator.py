@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 """Module containing the DeltaDiskEmulator node class"""
 import math
+import sys
+
 import rospy
+
 from visualization_msgs.msg import Marker
-from network_emulator import NetworkEmulator
+from network_emulator import NetworkEmulator, parser
 
 
 def distance(position1, position2):
@@ -48,10 +51,10 @@ class DeltaDiskEmulator(NetworkEmulator):
 
         # define a sphere_list marker to mark all the robot disks
         marker = Marker()
-        marker.header.frame_id = "/my_frame"
+        marker.header.frame_id = self.frame_id
         marker.header.stamp = rospy.Time.now()
         marker.id = 1000
-        marker.ns = "network_graph"
+        marker.ns = self.viz_ns
         marker.type = Marker.SPHERE_LIST
         marker.action = Marker.ADD
         marker.scale.x = 2 * self.disk_radius
@@ -71,4 +74,13 @@ class DeltaDiskEmulator(NetworkEmulator):
         return markers
 
 if __name__ == "__main__":
-    DeltaDiskEmulator(rate=10, disk_radius=5).run()
+    # pylint: disable=invalid-name
+    parser.add_argument("radius",
+                        default=5.0,
+                        type=float,
+                        help="The radius of detection/communication. "
+                        + "Default is 5.0")
+    myargv = rospy.myargv(sys.argv)[1:]
+    args = parser.parse_args(myargv)
+    DeltaDiskEmulator(rate=args.rate, disk_radius=args.radius)\
+        .run(vizualize=args.viz)

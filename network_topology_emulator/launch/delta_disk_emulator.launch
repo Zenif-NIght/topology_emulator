@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="network_topology_emulator" type="simple_vehicle_pose_publisher.py" name="simple_vehicle_pose_publisher">
+
+    </node>
+    <node pkg="network_topology_emulator" type="delta_disk_emulator.py" name="delta_disk_emulator" args="--viz 5.0">
+        <remap from="network_graph" to="topology_graph"/>
+    </node>
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find network_topology_emulator)/rviz/network_emulator_viz.rviz">
+
+    </node>
+</launch>

@@ -2,12 +2,17 @@
 """Module containing the NetworkEmulator class definition"""
 from __future__ import division
 
-from mv_msgs.msg import VehiclePoses, Neighbors
-# from network_topology_emulator.srv import Neighbors as NeighborsService
-from network_topology_emulator.srv import GetNeighbors
-from visualization_msgs.msg import MarkerArray, Marker
+import sys
+import argparse
 
+from visualization_msgs.msg import MarkerArray, Marker
 import rospy
+
+
+from mv_msgs.msg import VehiclePoses, Neighbors
+from network_topology_emulator.srv import GetNeighbors
+from rebroadcaster_msgs.srv import ConnectPositionServer
+
 
 class NetworkEmulator(object):
     """Base class for emulating a communication network in mulitvehicle robotics
@@ -17,7 +22,7 @@ class NetworkEmulator(object):
     When inheriting from this class the most important function to override is
     the build_network funciton. The other functions should work without change
     as long as the network is defined correctly. If additional functionality
-    is needed extending these functions is appropriat. For example, to store an
+    is needed extending these functions is appropriate. For example, to store an
     additional member variable in __init__ by calling super(SomeInheritingClass,
     self).__init__(rate=some_rate_value) in the inheriting class's __init__. See
     DeltaDiskEmulator class for examples.
@@ -41,18 +46,22 @@ class NetworkEmulator(object):
         # Save the rate in Hertz for use with vizualization
         self.rate_hz = rate
 
+        # Set a frame id and namespace for use with vizualization
+        self.frame_id = "map"
+        self.viz_ns = "network_graph"
+
         ####################### ROS init stuff #################################
         rospy.init_node('network_emulator')
-        self.subscriber = rospy.Subscriber('robot_poses',
-                                           VehiclePoses,
-                                           self.robot_poses_received)
+        rospy.Subscriber('robot_poses',
+                         VehiclePoses,
+                         self.robot_poses_received)
         self.rate = rospy.Rate(rate)
         self.viz_publisher = rospy.Publisher('network_graph',
                                              MarkerArray,
                                              queue_size=1)
-        self.service = rospy.Service("robot_neighbors",
-                                     GetNeighbors,
-                                     self.get_neighbors)
+        self.neighbors_service = rospy.Service("robot_neighbors",
+                                               GetNeighbors,
+                                               self.get_neighbors)
         ########################################################################
 
     def robot_poses_received(self, robot_poses):
@@ -109,9 +118,9 @@ class NetworkEmulator(object):
         markers = MarkerArray()
         # create a marker and build a point array to mark the robot positions
         robot_marker = Marker()
-        robot_marker.header.frame_id = "/my_frame"
+        robot_marker.header.frame_id = self.frame_id
         robot_marker.header.stamp = rospy.Time.now()
-        robot_marker.ns = "network_graph"
+        robot_marker.ns = self.viz_ns
         robot_marker.id = 0
         robot_marker.type = Marker.POINTS
         robot_marker.action = Marker.ADD
@@ -131,8 +140,8 @@ class NetworkEmulator(object):
                 # Create a marker and build all the aspects that are constant
                 # for all the network arrows
                 arrow_marker = Marker()
-                arrow_marker.header.frame_id = "/my_frame"
-                arrow_marker.ns = "network_graph"
+                arrow_marker.header.frame_id = self.frame_id
+                arrow_marker.ns = self.viz_ns
                 arrow_marker.type = Marker.ARROW
                 arrow_marker.action = Marker.ADD
                 arrow_marker.scale.x = 0.1
@@ -162,20 +171,44 @@ class NetworkEmulator(object):
         neighbors = self.network[robot]
         return Neighbors(neighbors)
 
-    def run(self):
+    def run(self, vizualize=False):
         """Calculates the network topology and publishes at a fixed rate
 
         Calculates the network topology based on the inheriting class's
         definition. Then publishes the topology to the robots. Uses the rate
         passed in at initialization to determine the rate at which to loop.
         """
+        try:
+            start_service = rospy.ServiceProxy("position_rebroadcaster/connect",
+                                               ConnectPositionServer)
+            start_service.call(topic="robot_poses",
+                               frameId=self.frame_id,
+                               filter=False)
+        except rospy.ServiceException:
+            rospy.loginfo("Service wasn't present. If another node is "
+                          + "publishing that data will be used.")
+
         rospy.wait_for_message("robot_poses", VehiclePoses)
         while not rospy.is_shutdown():
             self.build_network()
             self.publish_network()
-            markers = self.build_viz()
-            self.viz_publisher.publish(markers)
+            if vizualize:
+                markers = self.build_viz()
+                self.viz_publisher.publish(markers)
             self.rate.sleep()
 
+
+# pylint: disable=invalid-name
+parser = argparse.ArgumentParser()
+parser.add_argument("-r", "--rate",
+                    default=10,
+                    type=int,
+                    help="The rate at which to publish the messages."
+                    + " Default is 10Hz")
+parser.add_argument("--viz",
+                    action="store_true",
+                    help="Enable vizualization")
 if __name__ == '__main__':
-    NetworkEmulator(rate=1).run()
+    myargv = rospy.myargv(sys.argv)[1:]
+    args = parser.parse_args(myargv)
+    NetworkEmulator(rate=args.rate).run(vizualize=args.viz)
