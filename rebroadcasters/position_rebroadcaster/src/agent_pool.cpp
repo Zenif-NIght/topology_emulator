@@ -173,7 +173,7 @@ bool AgentPool::getNamespace(std::string& the_namespace, const std::string& topi
     return false;
   }
 
-  the_namespace = topic.substr(1, topic.size() - slash_pos + 1);
+  the_namespace = topic.substr(1, slash_pos - 1);
   return true;
 }
 

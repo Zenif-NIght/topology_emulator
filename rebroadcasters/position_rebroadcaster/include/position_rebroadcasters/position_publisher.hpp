@@ -26,7 +26,7 @@
 #include<thread>
 #include<functional>
 
-class PositionPublisher 
+class PositionPublisher
 {
 public:
   /**
