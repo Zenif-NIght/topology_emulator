@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
   nav_msgs
+  mv_msgs
   roscpp
   rospy
   std_msgs
@@ -108,11 +109,12 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES network_topology_emulator
- CATKIN_DEPENDS 
-  geometry_msgs 
-  nav_msgs 
-  roscpp 
-  rospy 
+ CATKIN_DEPENDS
+  geometry_msgs
+  nav_msgs
+  roscpp
+  rospy
+  mv_msgs
   std_msgs
   # mv_msgs
 #  DEPENDS system_lib
