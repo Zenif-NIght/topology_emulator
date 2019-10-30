@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""Module to test the service to get neighbors from a NetworkEmulator class"""
+"""Module to test the service to get neighbors from a NetworkEmulator class."""
 from network_topology_emulator.srv import GetNeighbors
 import rospy
 
 def run():
-    """Tests the service to get neighbors from a NetworkEmulator class"""
+    """Test the service to get neighbors from a NetworkEmulator class."""
     get_neighbors = rospy.ServiceProxy('robot_neighbors', GetNeighbors)
     rospy.wait_for_service('robot_neighbors')
     try:

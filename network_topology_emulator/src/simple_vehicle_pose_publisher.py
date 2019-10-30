@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""This module contains a dummy publisher for publishing random VehiclePoses"""
+"""This module contains a dummy publisher for publishing random VehiclePoses."""
 import math
 import random
 import rospy
@@ -7,7 +7,7 @@ from mv_msgs.msg import VehiclePose, VehiclePoses
 
 
 def run():
-    """Creates a dummy publisher, calcualtes random poses, and publishes them.
+    """Create a dummy publisher, calcualtes random poses, and publishes them.
 
     The random poses are limited by the value of "position_range" in the
     positive and negative directions. They also are all restricted to the z=0

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Module containing the DeltaDiskEmulator node class"""
+"""Module containing the DeltaDiskEmulator node class."""
 import math
 import sys
 
@@ -10,7 +10,7 @@ from network_emulator import NetworkEmulator, parser
 
 
 def distance(position1, position2):
-    """Calculate the distance between the two positions"""
+    """Calculate the distance between the two positions."""
     diffx = position1.x - position2.x
     diffy = position1.y - position2.y
     diffz = position1.z - position2.z
@@ -19,19 +19,20 @@ def distance(position1, position2):
 
 
 class DeltaDiskEmulator(NetworkEmulator):
-    """Class that emulates a delta disk network and vizualizes the disks"""
-    def __init__(self, rate=10, disk_radius=5):
-        """ Initialize with a disk radius input (default is 1)
+    """Class that emulates a delta disk network and vizualizes the disks."""
 
-        Disk radius units mirror whatever units are used for the robot poses
+    def __init__(self, rate=10, disk_radius=5):
+        """Initialize with a disk radius input (default is 1).
+
+        Disk radius units mirror whatever units are used for the robot poses.
         """
         super(DeltaDiskEmulator, self).__init__(rate)
         self.disk_radius = disk_radius
 
     def build_network(self):
-        """Build the network with a delta disk topology
+        """Build the network with a delta disk topology.
 
-        Calculates the distance between robots and updates the network such
+        Calculate the distance between robots and updates the network such
         that each robot only sees the robots to which it is "close enough"
         where "close enough" is given by the self.delta_radius parameter.
         """
@@ -47,6 +48,7 @@ class DeltaDiskEmulator(NetworkEmulator):
             self.network[robot] = neighbors
 
     def build_viz(self):
+        """Build the network for vizualization."""
         markers = super(DeltaDiskEmulator, self).build_viz()
 
         # define a sphere_list marker to mark all the robot disks

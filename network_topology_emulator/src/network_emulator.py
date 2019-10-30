@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Module containing the NetworkEmulator class definition"""
+"""Module containing the NetworkEmulator class definition."""
 from __future__ import division
 
 import sys
@@ -15,7 +15,7 @@ from rebroadcaster_msgs.srv import ConnectPositionServer
 
 
 class NetworkEmulator(object):
-    """Base class for emulating a communication network in mulitvehicle robotics
+    """Base class for emulating a communication network in mulitvehicle robotics.
 
     This class is a ROS Node that receives the VehiclePoses message and builds
     a network that represents the communication between vehicles/robots.
@@ -27,8 +27,9 @@ class NetworkEmulator(object):
     self).__init__(rate=some_rate_value) in the inheriting class's __init__. See
     DeltaDiskEmulator class for examples.
     """
+
     def __init__(self, rate=10):
-        """Initialize the class with a rate (default of 10) in Hz"""
+        """Initialize the class with a rate (default of 10) in Hz."""
         # The network is stored as a mapping of robot_id:[robot_ids]
         self.network = {}
 
@@ -65,10 +66,10 @@ class NetworkEmulator(object):
         ########################################################################
 
     def robot_poses_received(self, robot_poses):
-        """The callback function for when VehiclePoses messages are received
+        """Callback function for when VehiclePoses messages are received.
 
-        This receives the VehiclePoses message and stores the data in the
-        internal self.robots variable
+        Receive the VehiclePoses message and stores the data in the
+        internal self.robots variable.
         """
         # intialize the robot dependant variables now that we have the robot_ids
         # only do this the first time
@@ -99,7 +100,7 @@ class NetworkEmulator(object):
             self.network[robot] = self.robots.keys()
 
     def publish_network(self):
-        """Publish the respective adjacency list to each robot's topic"""
+        """Publish the respective adjacency list to each robot's topic."""
         for robot in self.robot_publishers:
             pub = self.robot_publishers[robot]
             msg = Neighbors()
@@ -107,12 +108,12 @@ class NetworkEmulator(object):
             pub.publish(msg)
 
     def build_viz(self):
-        """Builds the network for vizualization
+        """Build the network for vizualization.
 
-        Builds the network with arrow markers that point in the direction of
+        Build the network with arrow markers that point in the direction of
         information flow. In other words, if robot1 can "see" robot2 the arrow
         points from robot2 to robot1. Also adds small markers that indicate each
-        robots position
+        robots position.
         """
         i = 1
         markers = MarkerArray()
@@ -166,15 +167,15 @@ class NetworkEmulator(object):
         return markers
 
     def get_neighbors(self, robot_request):
-        """The service callback that returns a list of neighbors for a robot"""
+        """Service callback that returns a list of neighbors for a robot."""
         robot = robot_request.robot_id
         neighbors = self.network[robot]
         return Neighbors(neighbors)
 
     def run(self, vizualize=False):
-        """Calculates the network topology and publishes at a fixed rate
+        """Calculate the network topology and publishes at a fixed rate.
 
-        Calculates the network topology based on the inheriting class's
+        Calculate the network topology based on the inheriting class's
         definition. Then publishes the topology to the robots. Uses the rate
         passed in at initialization to determine the rate at which to loop.
         """
