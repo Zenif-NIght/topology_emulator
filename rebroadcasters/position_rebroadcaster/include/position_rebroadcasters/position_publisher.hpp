@@ -56,7 +56,7 @@ public:
    **/
   PositionPublisher(const std::string&                      output_topic,
                     const std::string&                      output_frameId,
-                    const std::reference_wrapper<AgentPool> agents,
+                    const std::reference_wrapper<AgentPool>&agents,
                     const bool                              use_filter,
                     const std::string&                      filter_topic,
                     const uint32_t                          publisher_queue_length = 5,
