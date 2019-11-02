@@ -29,6 +29,7 @@ catkin_package(
     roscpp
     tf
     nav_msgs
+    message_runtime
   DEPENDS
     ${GTEST_LIBRARIES}
 )
