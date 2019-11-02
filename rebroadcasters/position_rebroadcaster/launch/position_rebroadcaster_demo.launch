@@ -1,0 +1,12 @@
+<!-- position_rebroadcaster_demo.launch -->
+
+<launch>
+  <include file="$(find turtlebot_launch)/launch/multi_topology.launch" />
+  <include file="$(find position_rebroadcaster)/launch/position_rebroadcaster.launch" />
+  <node name="position_rebroadcaster_demo"
+        pkg="position_rebroadcaster"
+        type="position_rebroadcaster_demo"
+        output="screen"
+        respawn="false"
+        required="false" />
+</launch>

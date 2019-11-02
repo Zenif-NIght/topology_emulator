@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>topic_rebroadcaster</name>
+  <version>0.0.0</version>
+  <description>Used to pipe ROS topics at runtime</description>
+  <maintainer email="james@todo.todo">james</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rebroadcaster_msgs</depend>
+  <depend>mv_msgs</depend>
+
+  <depend>roscpp</depend>
+  <depend>topic_tools</depend>
+  <depend>std_msgs</depend>
+
+  <export></export>
+</package>

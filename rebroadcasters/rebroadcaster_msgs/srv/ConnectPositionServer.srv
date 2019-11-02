@@ -1,0 +1,20 @@
+##
+# @File: ConnectPostionServer.srv
+#
+# @brief
+# Tells the position server to start publishing on the given topic and with the given
+# frame ID.
+##
+
+## Receiver's ROS topic
+string topic
+
+## Receiver's frame id
+string frameId
+
+## Whether or not you want the pose data from only bots in the neighborhood
+## set of the receiver
+bool filter
+
+---
+

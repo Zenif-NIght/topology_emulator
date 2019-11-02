@@ -1,0 +1,10 @@
+<!-- topic_rebroadcaster_demo.launch -->
+
+<launch>
+  <include file="$(find topic_rebroadcaster)/launch/topic_rebroadcaster.launch" />
+  <node name="topic_rebroadcaster_demo"
+        pkg="topic_rebroadcaster"
+        type="topic_rebroadcaster_demo"
+        output="screen" />
+</launch>
+

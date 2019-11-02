@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find position_rebroadcaster)/launch/position_rebroadcaster.launch">
+
+    </include>
+    <include file="$(find turtlebot_launch)/launch/multi_topology.launch">
+
+    </include>
+
+    <node pkg="network_topology_emulator" type="delta_disk_emulator.py" name="delta_disk_emulator_node" args="--rate 20 --viz 5">
+        <remap from="network_graph" to="topology_graph"/>
+    </node>
+</launch>

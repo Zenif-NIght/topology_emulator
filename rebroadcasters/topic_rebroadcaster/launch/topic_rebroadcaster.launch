@@ -1,0 +1,11 @@
+<!-- topic_rebroadcaster.launch -->
+
+<launch>
+  <node name="topic_rebroadcaster_node"
+        pkg="topic_rebroadcaster"
+        type="topic_rebroadcaster_node"
+        respawn="true"
+        required="false"
+        output="screen" />
+</launch>
+

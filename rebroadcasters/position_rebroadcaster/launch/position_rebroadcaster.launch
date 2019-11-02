@@ -1,0 +1,42 @@
+<!-- position_rebroadcaster.launch -->
+
+<launch>
+  <arg name="network_topology_topic"
+       default="robot_neighbors"
+       doc="The topic that the network topology node is servicing" />
+  <arg name="agent_discovery_spin_rate"
+       default="1"
+       doc="The frequency in hertz that new agents will be looked for and agents no longer in
+            use will be removed." />
+  <arg name="agent_callback_queue_length"
+       default="5"
+       doc="How long the callback queues for receiving agent positions will be." />
+  <arg name="agent_refresh_rate"
+       default="30"
+       doc="The frequency in hertz that the agent's positions will be updated." />
+  <arg name="publishers_queue_length"
+       default="5"
+       doc="How long the outbound message queue is for position messages." />
+  <arg name="publishing_spin_rate"
+       default="30"
+       doc="The frequency in hertz that the outbound position messages will be published. NEEDS to be low" />
+  <arg name="server_response_speed"
+       default="1"
+       doc="The frequency in hertz that the server checks for incoming topic start and stop
+            requests." />
+
+  <node name="position_rebroadcaster_node"
+        pkg="position_rebroadcaster"
+        type="position_rebroadcaster_node"
+        respawn="true"
+        required="false"
+        output="screen" >
+    <param name="network_topology_topic"      value="$(arg network_topology_topic)"      />
+    <param name="agent_discovery_spin_rate"   value="$(arg agent_discovery_spin_rate)"   />
+    <param name="agent_callback_queue_length" value="$(arg agent_callback_queue_length)" />
+    <param name="agent_refresh_rate"          value="$(arg agent_refresh_rate)"          />
+    <param name="publishers_queue_length"     value="$(arg publishers_queue_length)"     />
+    <param name="publishing_spin_rate"        value="$(arg publishing_spin_rate)"        />
+    <param name="server_response_speed"       value="$(arg server_response_speed)"       />
+  </node>
+</launch>

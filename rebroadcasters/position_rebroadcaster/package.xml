@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>position_rebroadcaster</name>
+  <version>0.0.0</version>
+  <description>Provides a node for rebroadcasting position data</description>
+  <maintainer email="james@todo.todo">james</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Local Depends -->
+  <depend>rebroadcaster_msgs</depend>
+  <depend>network_topology_emulator</depend>
+  <depend>mv_msgs</depend>
+
+  <!-- ROS Depends -->
+  <depend>roscpp</depend>
+  <depend>tf</depend>
+  <depend>message_runtime</depend>
+  <depend>nav_msgs</depend>
+
+  <export></export>
+</package>
