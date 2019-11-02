@@ -66,7 +66,7 @@ class NetworkEmulator(object):
         ########################################################################
 
     def robot_poses_received(self, robot_poses):
-        """Callback function for when VehiclePoses messages are received.
+        """Execute when VehiclePoses messages are received.
 
         Receive the VehiclePoses message and stores the data in the
         internal self.robots variable.
